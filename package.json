@@ -1,0 +1,17 @@
+{
+  "name": "team20_dmss_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -t expense-tracker .",
+    "docker:run": "docker run -d -p 3000:3000 --name expense-tracker expense-tracker",
+    "docker:start": "docker start expense-tracker"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
