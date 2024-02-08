@@ -1,0 +1,5 @@
+docker build -t java_api_image -f Dockerfile_java .
+docker run -p 8080:8080 java_api_image
+
+docker build -t python_api_image -f Dockerfile_python .
+docker run -p 8081:8081 python_api_image

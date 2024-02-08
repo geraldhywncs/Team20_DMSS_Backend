@@ -1,0 +1,14 @@
+# Use the official OpenJDK image
+FROM openjdk:8-jre-alpine
+
+# Set the working directory
+WORKDIR /app/src/main/java/com/sg/ncs/nus/dmss/moneyGoWhere
+
+# Copy the JAR file into the container
+COPY target/Money-Go-Where-0.0.1-SNAPSHOT.jar app.jar
+
+# Expose the port on which the app will run
+EXPOSE 8080
+
+# Command to run the application
+CMD ["java", "-jar", "app.jar"]
