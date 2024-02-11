@@ -1,1 +1,5 @@
 flask
+sqlalchemy
+mysql-connector-python
+Flask-SQLAlchemy
+forex-python

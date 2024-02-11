@@ -5,7 +5,7 @@ FROM continuumio/anaconda3:latest
 WORKDIR /app/src/main/python
 
 # Copy the Python script into the container
-COPY src/main/python/MoneyGoWhere_API.py .
+COPY src/main/python/ .
 
 # Create and activate the conda environment with Python 3.11.7
 RUN conda create -n moneyGoWhere python=3.11.7
@@ -24,4 +24,4 @@ EXPOSE 8081
 
 # Command to run the application
 WORKDIR /app/src/main/python
-CMD ["python", "MoneyGoWhere_API.py"]
+CMD ["python", "main.py"]

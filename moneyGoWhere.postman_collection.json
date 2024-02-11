@@ -1,0 +1,26 @@
+{
+	"info": {
+		"_postman_id": "7708d85d-35ee-4bf0-aade-1bd5e02bf7a0",
+		"name": "moneyGoWhere",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31598878"
+	},
+	"item": [
+		{
+			"name": "Java API",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Python API",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
