@@ -1,0 +1,20 @@
+from flask import Flask
+from config.database_config import db, Database_Config
+from controller.expenses_controller import Expenses_Controller
+from controller.groups_controller import Groups_Controller
+from controller.grouping_controller import Grouping_Controller
+
+app = Flask(__name__)
+
+if __name__ == '__main__':
+    app.config.from_object(Database_Config)
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    Expenses_Controller(app)
+    Groups_Controller(app)
+    Grouping_Controller(app)
+
+    app.run(debug=True, host='0.0.0.0', port=8081)
