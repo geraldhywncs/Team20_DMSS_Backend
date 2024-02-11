@@ -7,18 +7,358 @@
 	},
 	"item": [
 		{
+			"name": "Expenses",
+			"item": [
+				{
+					"name": "Expenses create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"expenses1\",\r\n    \"expenses\": \"1234.12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/expenses/create",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"expenses",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expenses read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    //\"id\":\"2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/expenses/read",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"expenses",
+								"read"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expenses update",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"14\",\r\n    \"name\": \"sohai\",\r\n    \"expenses\": \"1111.111\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/expenses/update",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"expenses",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expenses delete",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"14\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/expenses/delete",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"expenses",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Split Expenses",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"groupId\": \"2\",\r\n    \"expenseId\": \"2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/expenses/splitExpense",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"expenses",
+								"splitExpense"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Convert Currency",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"amount\": \"5.13\",\r\n    \"from_currency\": \"USD\",\r\n    \"to_currency\": \"SGD\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/expenses/currencyConverter",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"expenses",
+								"currencyConverter"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Groups",
+			"item": [
+				{
+					"name": "Groups create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"groups\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/groups/create",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"groups",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Groups update",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"2\",\r\n    \"name\": \"sohai\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/groups/update",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"groups",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Groups delete",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/groups/delete",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"groups",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Groups read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/groups/read",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"groups",
+								"read"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Grouping",
+			"item": [
+				{
+					"name": "Grouping create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"5\",\r\n    \"group_id\": \"3\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/grouping/create",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"grouping",
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Java API",
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/helloWorld",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"helloWorld"
+					]
+				}
 			},
 			"response": []
 		},
 		{
 			"name": "Python API",
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081",
+					"host": [
+						"localhost"
+					],
+					"port": "8081"
+				}
 			},
 			"response": []
 		}
