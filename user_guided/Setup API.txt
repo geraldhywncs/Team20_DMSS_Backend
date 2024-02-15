@@ -2,5 +2,7 @@ docker build -t java_api_image -f Dockerfile_java .
 docker run -p 8080:8080 java_api_image
 
 docker build -t python_api_image -f Dockerfile_python .
-docker build -t python_api_image -f Dockerfile_python . 2>&1 | Out-File -FilePath build.log -Encoding utf8
+
+docker build -t python_api_image -f Dockerfile_python . > build.log 2>&1
+
 docker run -p 8081:8081 python_api_image
