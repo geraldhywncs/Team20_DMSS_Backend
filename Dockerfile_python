@@ -17,7 +17,9 @@ WORKDIR /app
 # For example, if using pip:
 COPY requirement.txt .
 RUN conda install -n moneyGoWhere pip && \
-    conda run -n moneyGoWhere pip install -r requirement.txt
+    echo | conda run -n moneyGoWhere pip install -r requirement.txt
+
+RUN conda run -n moneyGoWhere pip install flask_sqlalchemy
 
 # Expose the port on which the app will run
 EXPOSE 8081
