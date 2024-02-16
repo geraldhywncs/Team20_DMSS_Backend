@@ -1,10 +1,11 @@
 from flask import jsonify, request
 from config.database_config import db
-from model.expenses_model import Expenses_Model
+from model.expenses_model import Expenses_Model, Expenses_Backup_Model
 from utility.grouping_utility import Grouping_Utility
 import json
 import base64
 from forex_python.converter import CurrencyRates
+from decimal import Decimal, ROUND_HALF_UP
 
 class Expenses_Utility:
     def __init__(self):
@@ -14,7 +15,9 @@ class Expenses_Utility:
     def create_expense(self, data):
         try:
             new_expense = Expenses_Model(name=data['name'], expenses=data['expenses'])
+            new_expense1 = Expenses_Backup_Model(name=data['name'], expenses=data['expenses'])
             db.session.add(new_expense)
+            db.session.add(new_expense1)
             db.session.commit()
             return jsonify(message='Expense created successfully!')
         except Exception as e:
@@ -28,11 +31,24 @@ class Expenses_Utility:
                 if expense:
                     return jsonify(id=expense.id, name=expense.name, expenses=expense.expenses)
                 else:
-                    return jsonify(message=f'Expense with ID {expense_id} not found'), 404
+                    expense = Expenses_Backup_Model.query.get(expense_id)
+                    if expense:
+                        return jsonify(id=expense.id, name=expense.name, expenses=expense.expenses)
+                    else:
+                        return jsonify(message=f'Expense with ID {expense_id} not found'), 404
             else:
                 expenses = Expenses_Model.query.all()
-                expense_list = [{'id': expense.id, 'name': expense.name, 'expenses': expense.expenses} for expense in expenses]
-                return jsonify(expenses=expense_list)
+                if expenses:
+                    expense_list = [{'id': expense.id, 'name': expense.name, 'expenses': expense.expenses} for expense in expenses]
+                    return jsonify(expenses=expense_list)
+                else:
+                    expenses = Expenses_Backup_Model.query.all()
+                    if expenses:
+                        expense_list = [{'id': expense.id, 'name': expense.name, 'expenses': expense.expenses} for expense in expenses]
+                        return jsonify(expenses=expense_list)
+                    else:
+                        return jsonify(message=f'Expenses are not found'), 404
+                
         except Exception as e:
             return jsonify(message=f'Error reading expenses: {str(e)}'), 500
 
@@ -47,9 +63,16 @@ class Expenses_Utility:
 
             if not expense:
                 return jsonify(message=f'Expense with ID {expense_id} not found'), 404
+            
+            expense1 = Expenses_Backup_Model.query.get(expense_id)
 
+            if not expense:
+                return jsonify(message=f'Expense with ID {expense_id} not found'), 404
+            
             expense.name = data['name']
             expense.expenses = data['expenses']
+            expense1.name = data['name']
+            expense1.expenses = data['expenses']
             db.session.commit()
             return jsonify(message='Expense updated successfully!')
         except Exception as e:
@@ -66,8 +89,14 @@ class Expenses_Utility:
 
             if not expense:
                 return jsonify(message=f'Expense with ID {expense_id} not found'), 404
+            
+            expense1 = Expenses_Backup_Model.query.get(expense_id)
+
+            if not expense1:
+                return jsonify(message=f'Expense with ID {expense_id} not found'), 404
 
             db.session.delete(expense)
+            db.session.delete(expense1)
             db.session.commit()
             return jsonify(message='Expense deleted successfully!')
         except Exception as e:
@@ -87,8 +116,8 @@ class Expenses_Utility:
             expenses_response_content = expenses_response.get_data(as_text=True)
             expenses_data = json.loads(expenses_response_content).get("expenses")
 
-            expenses_per_ppl =  round(int(expenses_data) / len(grouping_data), 2)
-            
+            expenses_per_ppl = Decimal(expenses_data) / Decimal(len(grouping_data))
+            expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
 
             return jsonify(expenses_per_ppl=expenses_per_ppl)
 

@@ -11,5 +11,6 @@ config = ConfigParser()
 config.read(config_file_path)
 
 class Database_Config:
-    SQLALCHEMY_DATABASE_URI = config.get('database', 'SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1')
+    SQLALCHEMY_DATABASE_URI2 = config.get('database', 'SQLALCHEMY_DATABASE_URI2')
     SQLALCHEMY_TRACK_MODIFICATIONS = config.getboolean('database', 'SQLALCHEMY_TRACK_MODIFICATIONS')
