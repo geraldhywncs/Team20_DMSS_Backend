@@ -1,5 +1,5 @@
 # Use the official MySQL Docker image
-FROM mysql:latest
+FROM mysql:8.0
 
 # Set the root user password for the first instance
 ENV MYSQL_ROOT_PASSWORD default1111

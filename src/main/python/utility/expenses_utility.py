@@ -1,11 +1,12 @@
 from flask import jsonify, request
 from config.database_config import db
-from model.expenses_model import Expenses_Model, Expenses_Backup_Model
+from model.expenses_model import Expenses_Model
 from utility.grouping_utility import Grouping_Utility
 import json
 import base64
 from forex_python.converter import CurrencyRates
 from decimal import Decimal, ROUND_HALF_UP
+import requests
 
 class Expenses_Utility:
     def __init__(self):
@@ -15,9 +16,7 @@ class Expenses_Utility:
     def create_expense(self, data):
         try:
             new_expense = Expenses_Model(name=data['name'], expenses=data['expenses'])
-            new_expense1 = Expenses_Backup_Model(name=data['name'], expenses=data['expenses'])
             db.session.add(new_expense)
-            db.session.add(new_expense1)
             db.session.commit()
             return jsonify(message='Expense created successfully!')
         except Exception as e:
@@ -31,23 +30,14 @@ class Expenses_Utility:
                 if expense:
                     return jsonify(id=expense.id, name=expense.name, expenses=expense.expenses)
                 else:
-                    expense = Expenses_Backup_Model.query.get(expense_id)
-                    if expense:
-                        return jsonify(id=expense.id, name=expense.name, expenses=expense.expenses)
-                    else:
-                        return jsonify(message=f'Expense with ID {expense_id} not found'), 404
+                    return jsonify(message=f'Expense with ID {expense_id} not found'), 404
             else:
                 expenses = Expenses_Model.query.all()
                 if expenses:
                     expense_list = [{'id': expense.id, 'name': expense.name, 'expenses': expense.expenses} for expense in expenses]
                     return jsonify(expenses=expense_list)
                 else:
-                    expenses = Expenses_Backup_Model.query.all()
-                    if expenses:
-                        expense_list = [{'id': expense.id, 'name': expense.name, 'expenses': expense.expenses} for expense in expenses]
-                        return jsonify(expenses=expense_list)
-                    else:
-                        return jsonify(message=f'Expenses are not found'), 404
+                    return jsonify(message=f'Expenses are not found'), 404
                 
         except Exception as e:
             return jsonify(message=f'Error reading expenses: {str(e)}'), 500
@@ -57,22 +47,12 @@ class Expenses_Utility:
         try:
             if 'id' not in data:
                 return jsonify(message='Expense ID not specified in the request'), 400
-
             expense_id = data['id']
             expense = Expenses_Model.query.get(expense_id)
-
             if not expense:
                 return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-            
-            expense1 = Expenses_Backup_Model.query.get(expense_id)
-
-            if not expense:
-                return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-            
             expense.name = data['name']
             expense.expenses = data['expenses']
-            expense1.name = data['name']
-            expense1.expenses = data['expenses']
             db.session.commit()
             return jsonify(message='Expense updated successfully!')
         except Exception as e:
@@ -83,20 +63,11 @@ class Expenses_Utility:
         try:
             if 'id' not in data:
                 return jsonify(message='Expense ID not specified in the request'), 400
-
             expense_id = data['id']
             expense = Expenses_Model.query.get(expense_id)
-
             if not expense:
                 return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-            
-            expense1 = Expenses_Backup_Model.query.get(expense_id)
-
-            if not expense1:
-                return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-
             db.session.delete(expense)
-            db.session.delete(expense1)
             db.session.commit()
             return jsonify(message='Expense deleted successfully!')
         except Exception as e:
@@ -126,19 +97,22 @@ class Expenses_Utility:
         
     def currency_converter_expense(self, data):
         try:
-            if 'amount' not in data:
-                    return jsonify(message='Amount not specified in the request'), 400
-            if 'from_currency' not in data:
-                return jsonify(message='From Currency not specified in the request'), 400
-            if 'to_currency' not in data:
-                return jsonify(message='To Currency not specified in the request'), 400
+            if 'amount' not in data or 'from_currency' not in data or 'to_currency' not in data:
+                return jsonify(message='Invalid request. Please provide amount, from_currency, and to_currency.'), 400
+
             c = CurrencyRates()
             amount = data['amount']
             from_currency = data['from_currency']
             to_currency = data['to_currency']
+            
             exchange_rate = c.get_rate(from_currency, to_currency)
             converted_amount = round(float(amount) * float(exchange_rate), 2)
+            
             return jsonify(converted_amount=converted_amount)
+
+        except requests.exceptions.RequestException as e:
+            return jsonify(message=f'Error connecting to the currency conversion service: {str(e)}'), 500
+
         except Exception as e:
-            return jsonify(message=f'Error convert currency: {str(e)}'), 500
+            return jsonify(message=f'Error converting currency: {str(e)}'), 500
 

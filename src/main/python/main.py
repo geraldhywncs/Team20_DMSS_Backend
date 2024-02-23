@@ -9,8 +9,7 @@ app = Flask(__name__)
 if __name__ == '__main__':
     app.config['SQLALCHEMY_DATABASE_URI'] = Database_Config.SQLALCHEMY_DATABASE_URI1
     app.config['SQLALCHEMY_BINDS'] = {
-        'db1': Database_Config.SQLALCHEMY_DATABASE_URI1,
-        'db2': Database_Config.SQLALCHEMY_DATABASE_URI2
+        'db1': Database_Config.SQLALCHEMY_DATABASE_URI1
     }
     db.init_app(app)
 
