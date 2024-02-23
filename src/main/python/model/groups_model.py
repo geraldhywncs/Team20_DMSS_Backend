@@ -6,10 +6,3 @@ class Groups_Model(db.Model):
     name = db.Column(db.String(255))
 
     __tablename__ = 'groups'
-
-class Groups_Backend_Model(db.Model):
-    __bind_key__ = 'db2'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255))
-
-    __tablename__ = 'groups'

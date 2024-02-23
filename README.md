@@ -35,11 +35,8 @@
 
 ## Docker MySQL
 1. docker build -t mysql_server_1 -f Dockerfile_mysql_server_1 .
-2. docker build -t mysql_server_2 -f Dockerfile_mysql_server_2 .
-3. docker run -d --name mysql_instance_1 -p 3306:3306 mysql_server_1
-4. docker run -d --name mysql_instance_2 -p 3307:3307 mysql_server_2
-5. docker exec -it mysql_instance_1 mysql -uroot -p
-6. docker exec -it mysql_instance_2 mysql -uroot -p
+2. docker run -d --name mysql_instance_1 -p 3306:3306 mysql_server_1
+3. docker exec -it mysql_instance_1 mysql -uroot -p
 password = default1111
 
 
