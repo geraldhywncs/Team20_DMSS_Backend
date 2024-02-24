@@ -1,10 +1,12 @@
 from flask import Flask
+from flask_cors import CORS  # Import CORS
 from config.database_config import db, Database_Config
 from controller.expenses_controller import Expenses_Controller
 from controller.groups_controller import Groups_Controller
 from controller.grouping_controller import Grouping_Controller
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 if __name__ == '__main__':
     app.config['SQLALCHEMY_DATABASE_URI'] = Database_Config.SQLALCHEMY_DATABASE_URI1

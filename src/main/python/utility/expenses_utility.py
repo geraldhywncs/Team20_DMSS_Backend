@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from config.database_config import db
 from model.expenses_model import Expenses_Model
+from model.currencies_model import Currencies_Model
 from utility.grouping_utility import Grouping_Utility
 import json
 import base64
@@ -72,23 +73,54 @@ class Expenses_Utility:
             return jsonify(message='Expense deleted successfully!')
         except Exception as e:
             return jsonify(message=f'Error delete expense: {str(e)}'), 500
+        
+    # def split_expense(self, data):
+    #     try:
+    #         if 'expenseId' not in data:
+    #             return jsonify(message='Expense ID not specified in the request'), 400
+    #         if 'groupId' not in data:
+    #             return jsonify(message='Group ID not specified in the request'), 400
+                
+    #         expenses_response = self.read_expenses({"id": data['expenseId']})
+    #         grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['groupId']})
+    #         grouping_response_content = grouping_response.get_data(as_text=True)
+    #         grouping_data = json.loads(grouping_response_content).get("grouping", [])
+    #         expenses_response_content = expenses_response.get_data(as_text=True)
+    #         expenses_data = json.loads(expenses_response_content).get("expenses")
+
+    #         expenses_per_ppl = Decimal(expenses_data) / Decimal(len(grouping_data))
+    #         expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+
+    #         return jsonify(expenses_per_ppl=expenses_per_ppl)
+
+    #     except Exception as e:
+    #         return jsonify(message=f'Error split expense: {str(e)}'), 500
     
     def split_expense(self, data):
         try:
-            if 'expenseId' not in data:
-                return jsonify(message='Expense ID not specified in the request'), 400
             if 'groupId' not in data:
                 return jsonify(message='Group ID not specified in the request'), 400
+            else:
+                grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['groupId']})
+                grouping_response_content = grouping_response.get_data(as_text=True)
+                grouping_data = json.loads(grouping_response_content).get("grouping", [])
                 
-            expenses_response = self.read_expenses({"id": data['expenseId']})
-            grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['groupId']})
-            grouping_response_content = grouping_response.get_data(as_text=True)
-            grouping_data = json.loads(grouping_response_content).get("grouping", [])
-            expenses_response_content = expenses_response.get_data(as_text=True)
-            expenses_data = json.loads(expenses_response_content).get("expenses")
 
-            expenses_per_ppl = Decimal(expenses_data) / Decimal(len(grouping_data))
-            expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+            if 'expenseId' in data and 'amount' not in data:
+                expenses_response = self.read_expenses({"id": data['expenseId']})
+                expenses_response_content = expenses_response.get_data(as_text=True)
+                expenses_response_content = expenses_response.get_data(as_text=True)
+                expenses_data = json.loads(expenses_response_content).get("expenses")
+                expenses_per_ppl = Decimal(expenses_data) / Decimal(len(grouping_data))
+                expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+            elif 'expenseId' not in data and 'amount' in data:
+                amount = data['amount']
+                expenses_per_ppl = Decimal(amount) / Decimal(len(grouping_data))
+                expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+            elif 'expenseId' in data and 'amount' in data:
+                return jsonify(message='Which do you have to count at? Expense ID or Amount'), 400
+            else:
+                return jsonify(message='Expense ID and Amount are not specified in the request'), 400
 
             return jsonify(expenses_per_ppl=expenses_per_ppl)
 
@@ -115,4 +147,17 @@ class Expenses_Utility:
 
         except Exception as e:
             return jsonify(message=f'Error converting currency: {str(e)}'), 500
+        
+    def read_all_currencies(self):
+        try:
+            currencies = Currencies_Model.query.all()
+            if currencies:
+                currency_list = [{'code': currency.code, 'name': currency.name} for currency in currencies]
+                return jsonify(currency=currency_list)
+            else:
+                return jsonify(message=f'Currencies are not found'), 404
+        except Exception as e:
+            return jsonify(message=f'Error read currencies: {str(e)}'), 500
+
+
 

@@ -42,3 +42,7 @@ class Expenses_Controller:
         def currency_converter_expense():
             data = request.get_json()
             return self.expenses_utility.currency_converter_expense(data)
+        
+        @app.route('/expenses/readAllCurrencies', methods=['POST'])
+        def read_all_currencies():
+            return self.expenses_utility.read_all_currencies()
