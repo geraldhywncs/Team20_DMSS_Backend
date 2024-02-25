@@ -4,6 +4,7 @@ from config.database_config import db, Database_Config
 from controller.expenses_controller import Expenses_Controller
 from controller.groups_controller import Groups_Controller
 from controller.grouping_controller import Grouping_Controller
+from controller.currency_controller import Currency_Controller
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -21,5 +22,6 @@ if __name__ == '__main__':
     Expenses_Controller(app)
     Groups_Controller(app)
     Grouping_Controller(app)
+    Currency_Controller(app)
 
     app.run(debug=True, host='0.0.0.0', port=8081)

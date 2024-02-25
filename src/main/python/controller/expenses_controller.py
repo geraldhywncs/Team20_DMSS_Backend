@@ -31,18 +31,9 @@ class Expenses_Controller:
         def delete_expense():
             data = request.get_json()
             return self.expenses_utility.delete_expense(data)
-
         
         @app.route('/expenses/splitExpense', methods=['POST'])
         def split_expense():
             data = request.get_json()
             return self.expenses_utility.split_expense(data)
         
-        @app.route('/expenses/currencyConverter', methods=['POST'])
-        def currency_converter_expense():
-            data = request.get_json()
-            return self.expenses_utility.currency_converter_expense(data)
-        
-        @app.route('/expenses/readAllCurrencies', methods=['POST'])
-        def read_all_currencies():
-            return self.expenses_utility.read_all_currencies()
