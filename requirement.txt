@@ -3,5 +3,5 @@ sqlalchemy
 mysql-connector-python
 Flask-SQLAlchemy
 flask_sqlalchemy
-forex-python
 flask_cors
+CurrencyConverter

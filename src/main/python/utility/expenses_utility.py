@@ -117,6 +117,8 @@ class Expenses_Utility:
                 data['shareAmount'] = None
             if "amount" not in data:
                 return jsonify(message='Invalid request. Please provide amount.'), 400
+            if "fromCurrency" not in data:
+                return jsonify(message='Invalid request. Please provide from Currency.'), 400
             
             new_expense = Expenses_Model(
                                 user_id = data['userId'], 
@@ -133,61 +135,79 @@ class Expenses_Utility:
             created_expense_id = new_expense.expenses_id
             
             currency_response_default_currency = self.currency_utility.read_all_currencies()
-            print(currency_response_default_currency)
+            if isinstance(currency_response_default_currency, tuple):
+                currency_response_default_currency, status_code = currency_response_default_currency
+            else:
+                status_code = currency_response_default_currency.status_code
+            if status_code != 200:
+                currency_response_default_currency_content = currency_response_default_currency.get_data(as_text=True)
+                print("convert_currency_response_content (status code 500):", currency_response_default_currency_content)
+                return jsonify(message=currency_response_default_currency_content), status_code
+
             currency_response_content = currency_response_default_currency.get_data(as_text=True)
             currency_data = json.loads(currency_response_content).get("currency")
 
             if currency_data:
                 codes = [currency.get("code") for currency in currency_data]
                 currency_ids = [currency.get("currency_id") for currency in currency_data]
-                convert_list = []
-                counti = 0
+                index_of_currency = currency_ids.index(int(data['fromCurrency']))
+                from_currency = codes.pop(index_of_currency)
+                from_currency_id = currency_ids.pop(index_of_currency)
+                print(codes)
+                print(currency_ids)
                 countj = 0
 
-                for i in codes:
-                    for j in codes:
-                        convert_currency_response = self.currency_utility.currency_converter_expense({"amount": data['amount'], "from_currency": i, "to_currency": j})
-                        print("convert_currency_response:", convert_currency_response)
+                convert_currency_reponse = self.currency_utility.create_currency_converter({
+                        "original_currency": data['fromCurrency'],
+                        "convert_currency": data['fromCurrency'],
+                        "exchange_rate": 1,
+                        "converted_amount": data['amount'],
+                        "expense_id": created_expense_id
+                    })
 
-                        # Check if the response is a tuple
-                        if isinstance(convert_currency_response, tuple):
-                            # Extract the response from the tuple
-                            convert_currency_response, status_code = convert_currency_response
-                        else:
-                            # If not a tuple, set the status_code to the response's status code
-                            status_code = convert_currency_response.status_code
+                for j in codes:
+                    convert_currency_response = self.currency_utility.currency_converter_expense({"amount": data['amount'], "from_currency": from_currency, "to_currency": j})
 
-                        # Check the status code of the response
-                        if status_code == 500:
-                            print("Skipping due to status code 500")
-                            # Print the content of convert_currency_response_content
-                            convert_currency_response_content = convert_currency_response.get_data(as_text=True)
-                            print("convert_currency_response_content (status code 500):", convert_currency_response_content)
-                            continue
+                    if isinstance(convert_currency_response, tuple):
+                        convert_currency_response, status_code = convert_currency_response
+                    else:
+                        status_code = convert_currency_response.status_code
 
-                        # Introduce a sleep time (e.g., 1 second) between requests
-                        #time.sleep(1)
-
+                    if status_code != 200:
+                        print("Skipping due to status code 500")
+                        # Print the content of convert_currency_response_content
                         convert_currency_response_content = convert_currency_response.get_data(as_text=True)
-                        print("convert_currency_response_content:", convert_currency_response_content)
+                        print("convert_currency_response_content (status code 500/400):", convert_currency_response_content)
+                        return jsonify(message=convert_currency_response_content), status_code
 
-                        # Print values to identify where the error occurs
-                        print("counti:", counti, "countj:", countj)
-                        print("i:", i, "j:", j)
-                        print("currency_ids:", currency_ids)
 
-                        # ... (rest of the code)
-                        convert_currency_reponse = self.currency_utility.create_currency_converter({
-                            "original_currency": currency_ids[counti],
-                            "convert_currency": currency_ids[countj],
-                            "exchange_rate": json.loads(convert_currency_response_content).get("exchange_rate"),
-                            "converted_amount": json.loads(convert_currency_response_content).get("converted_amount"),
-                            "expense_id": created_expense_id
-                        })
+                    convert_currency_response_content = convert_currency_response.get_data(as_text=True)
+                    print("convert_currency_response_content:", convert_currency_response_content)
 
-                        countj += 1
-                    countj = 0
-                    counti += 1
+                    # Print values to identify where the error occurs
+                    print("countj:", countj)
+                    print("j:", j)
+                    print("from_currency:", from_currency)
+                    print("currency_ids:", currency_ids)
+
+                    convert_currency_reponse = self.currency_utility.create_currency_converter({
+                        "original_currency": from_currency_id,
+                        "convert_currency": currency_ids[countj],
+                        "exchange_rate": json.loads(convert_currency_response_content).get("exchange_rate"),
+                        "converted_amount": json.loads(convert_currency_response_content).get("converted_amount"),
+                        "expense_id": created_expense_id
+                    })
+
+                    if isinstance(convert_currency_reponse, tuple):
+                        convert_currency_reponse, status_code = convert_currency_reponse
+                    else:
+                        status_code = convert_currency_reponse.status_code
+                    if status_code != 200:
+                        convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
+                        print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
+                        return jsonify(message=convert_currency_reponse_content), status_code
+
+                    countj += 1
 
             else:
                 return jsonify(message='No currencies inside database'), 400
