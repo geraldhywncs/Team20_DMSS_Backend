@@ -4,7 +4,7 @@ from model.currencies_model import Currencies_Model
 from model.currency_conversion_model import Currency_Conversion_Model
 import json
 import base64
-from forex_python.converter import CurrencyRates
+from currency_converter import CurrencyConverter
 from decimal import Decimal, ROUND_HALF_UP
 import requests
 
@@ -16,13 +16,13 @@ class Currency_Utility:
             if 'amount' not in data or 'from_currency' not in data or 'to_currency' not in data:
                 return jsonify(message='Invalid request. Please provide amount, from_currency, and to_currency.'), 400
 
-            c = CurrencyRates()
+            c = CurrencyConverter()
             amount = data['amount']
             from_currency = data['from_currency']
             to_currency = data['to_currency']
-            
-            exchange_rate = c.get_rate(from_currency, to_currency)
-            converted_amount = round(float(amount) * float(exchange_rate), 2)
+            converted_amount = c.convert(float(amount), from_currency, to_currency)
+            exchange_rate = converted_amount/float(amount)
+            converted_amount = round(converted_amount, 2)
             
             return jsonify(converted_amount=converted_amount, exchange_rate = exchange_rate)
 
