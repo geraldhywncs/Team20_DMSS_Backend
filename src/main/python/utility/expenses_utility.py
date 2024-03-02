@@ -210,12 +210,12 @@ class Expenses_Utility:
                     countj += 1
 
             else:
-                return jsonify(message='No currencies inside database'), 400
+                return jsonify(message='No currencies inside database', status_code="400"), 400
 
             
-            return jsonify(message='Expense created successfully!')
+            return jsonify(message='Transaction created successfully!', status_code="200")
         except Exception as e:
-            return jsonify(message=f'Error creating expense: {str(e)}'), 500
+            return jsonify(message=f'Error creating expense: {str(e)}', status_code="500"), 500
 
 
 
