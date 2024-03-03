@@ -87,14 +87,14 @@ class Expenses_Utility:
                 expenses_per_ppl = Decimal(amount) / Decimal(len(grouping_data))
                 expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
             elif 'expenseId' in data and 'amount' in data:
-                return jsonify(message='Which do you have to count at? Expense ID or Amount'), 400
+                return jsonify(message='Which do you have to count at? Expense ID or Amount', status_code='400'), 400
             else:
-                return jsonify(message='Expense ID and Amount are not specified in the request'), 400
+                return jsonify(message='Expense ID and Amount are not specified in the request',status_code='400'), 400
 
-            return jsonify(expenses_per_ppl=expenses_per_ppl)
+            return jsonify(expenses_per_ppl=expenses_per_ppl, status_code='200')
 
         except Exception as e:
-            return jsonify(message=f'Error split expense: {str(e)}'), 500
+            return jsonify(message=f'Error split expense: {str(e)}', status_code='500'), 500
         
    
         
