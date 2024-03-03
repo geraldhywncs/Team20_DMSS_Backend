@@ -11,23 +11,23 @@ class Groups_Controller:
             db.create_all()
         
             
-        @app.route('/groups/create', methods=['POST'])
-        def create_group():
-            data = request.get_json()
-            return self.groups_utility.create_group(data)
+        # @app.route('/groups/create', methods=['POST'])
+        # def create_group():
+        #     data = request.get_json()
+        #     return self.groups_utility.create_group(data)
 
         @app.route('/groups/read', methods=['POST'])
         def read_groups():
             data = request.get_json()
             return self.groups_utility.read_groups(data)
 
-        @app.route('/groups/update', methods=['POST'])
-        def update_group():
-            data = request.get_json()
-            return self.groups_utility.update_group(data)
+        # @app.route('/groups/update', methods=['POST'])
+        # def update_group():
+        #     data = request.get_json()
+        #     return self.groups_utility.update_group(data)
                 
 
-        @app.route('/groups/delete', methods=['POST'])
-        def delete_group():
-            data = request.get_json()
-            return self.groups_utility.delete_group(data)
+        # @app.route('/groups/delete', methods=['POST'])
+        # def delete_group():
+        #     data = request.get_json()
+        #     return self.groups_utility.delete_group(data)
