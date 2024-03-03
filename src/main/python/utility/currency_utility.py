@@ -38,16 +38,16 @@ class Currency_Utility:
                 currencies = Currencies_Model.query.all()
                 if currencies:
                     currency_list = [{'currency_id': currency.currency_id, 'code': currency.code, 'name': currency.name} for currency in currencies]
-                    return jsonify(currency=currency_list)
+                    return jsonify(currency=currency_list, status_code = '200')
                 else:
-                    return jsonify(message=f'Currencies are not found'), 404
+                    return jsonify(message=f'Currencies are not found', status_code = '404'), 404
             else:
                 currencies_id = data.get('currencyId')
                 currencies = Currencies_Model.query.get(currencies_id)
                 if currencies:
-                    return jsonify(currency_id=currencies.currency_id, code=currencies.code, name=currencies.name)
+                    return jsonify(currency_id=currencies.currency_id, code=currencies.code, name=currencies.name, status_code = '200')
         except Exception as e:
-            return jsonify(message=f'Error read currencies: {str(e)}'), 500
+            return jsonify(message=f'Error read currencies: {str(e)}', status_code = '500'), 500
         
     def create_currency_converter(self, data):
         try:

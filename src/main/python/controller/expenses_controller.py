@@ -16,10 +16,10 @@ class Expenses_Controller:
             data = request.get_json()
             return self.expenses_utility.create_expense(data)
 
-        @app.route('/expenses/read', methods=['POST'])
-        def get_expenses():
-            data = request.get_json()
-            return self.expenses_utility.read_expenses(data)
+        # @app.route('/expenses/read', methods=['POST'])
+        # def get_expenses():
+        #     data = request.get_json()
+        #     return self.expenses_utility.read_expenses(data)
                 
 
         @app.route('/expenses/update', methods=['POST'])

@@ -19,3 +19,8 @@ class Grouping_Controller:
         def create_grouping():
             data = request.get_json()
             return self.grouping_utility.create_grouping(data)
+            
+        @app.route('/grouping/countUserGrouping', methods=['POST'])
+        def count_number_of_user_in_group():
+            data = request.get_json()
+            return self.grouping_utility.count_number_of_user_in_group(data)
