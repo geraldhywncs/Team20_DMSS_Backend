@@ -6,6 +6,8 @@ from controller.groups_controller import Groups_Controller
 from controller.grouping_controller import Grouping_Controller
 from controller.currency_controller import Currency_Controller
 from controller.category_controller import Category_Controller
+from controller.recurring_frequency_controller import Recurring_Frequency_Controller
+from controller.icon_controller import Icon_Controller
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -25,6 +27,8 @@ if __name__ == '__main__':
     Grouping_Controller(app)
     Currency_Controller(app)
     Category_Controller(app)
+    Recurring_Frequency_Controller(app)
+    Icon_Controller(app)
 
 
     app.run(debug=True, host='0.0.0.0', port=8081)
