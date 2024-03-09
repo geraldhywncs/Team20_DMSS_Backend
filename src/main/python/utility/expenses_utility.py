@@ -120,6 +120,7 @@ class Expenses_Utility:
                 return jsonify(message='Invalid request. Please provide recurring frequency id.', status_code=400), 400
 
             data['group_id'] = None if "group_id" not in data or data['group_id'] == "" else data['group_id']
+            data['recur_id'] = None if "recur_id" not in data or data['recur_id'] == "" else data['recur_id']
 
             new_receipt = Receipt_Model(
                 created_user_id=data['user_id'],
