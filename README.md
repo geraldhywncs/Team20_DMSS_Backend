@@ -6,12 +6,6 @@
 - Run `npm run docker:run` to start and run the docker container using the docker image (for first time only).
 - Run `npm run docker:start` if container exists but not running.
 
-## Docker Backend Image Build - Python
-
-1. docker network create dmss (Create docker network if not yet created)
-2. docker build -t python_api_image -f Dockerfile_python .
-3. docker rm -f dmss_backend || true && docker run -d -e DOCKER_CONTAINER=true --name dmss_backend --network=dmss -p 5000:5000 python_api_image
-
 ## Docker MySQL
 
 1. docker network create dmss (Create docker network if not yet created)
@@ -20,6 +14,12 @@
 4. docker start mysql_instance_1
 5. docker exec -it mysql_instance_1 mysql -uroot -p
 6. Note: password = default1111
+
+## Docker Backend Image Build - Python
+
+1. docker network create dmss (Create docker network if not yet created)
+2. docker build -t python_api_image -f Dockerfile_python .
+3. docker rm -f dmss_backend || true && docker run -d -e DOCKER_CONTAINER=true --name dmss_backend --network=dmss -p 5000:5000 python_api_image
 
 ## Docker Backend Image Build - Java
 
