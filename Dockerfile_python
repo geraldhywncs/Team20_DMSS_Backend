@@ -6,25 +6,21 @@ WORKDIR /app/src/main/python
 
 # Copy the Python script into the container
 COPY src/main/python/ .
+COPY requirement.txt .
 
 # Create and activate the conda environment with Python 3.11.7
 RUN conda create -n moneyGoWhere python=3.11.7
 RUN echo "conda activate moneyGoWhere" >> ~/.bashrc
 SHELL ["/bin/bash", "--login", "-c"]
-WORKDIR /app
 
 # Install any dependencies your script may need
 # For example, if using pip:
-COPY requirement.txt .
-RUN conda install -n moneyGoWhere pip && \
-    echo | conda run -n moneyGoWhere pip install -r requirement.txt
-
-RUN echo | conda run -n moneyGoWhere pip install flask_sqlalchemy
+RUN conda install -n moneyGoWhere pip
+RUN conda run -n moneyGoWhere pip install -r requirement.txt
 
 # Expose the port on which the app will run
-EXPOSE 8081
+EXPOSE 5000
 
 # Command to run the application
-WORKDIR /app/src/main/python
 CMD ["conda", "run", "-n", "moneyGoWhere", "python", "main.py"]
 
