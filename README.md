@@ -43,4 +43,4 @@
 2. docker run -d --name mysql_instance_1 -p 3306:3306 mysql_server_1
 3. docker start mysql_instance_1
 4. docker exec -it mysql_instance_1 mysql -uroot -p
-   \n password = default1111
+5. Note: password = default1111
