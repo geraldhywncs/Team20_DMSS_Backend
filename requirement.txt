@@ -5,3 +5,5 @@ Flask-SQLAlchemy
 flask_sqlalchemy
 flask_cors
 CurrencyConverter
+requests
+forex_python
