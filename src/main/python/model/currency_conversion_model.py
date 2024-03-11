@@ -9,4 +9,4 @@ class Currency_Conversion_Model(db.Model):
     exchange_rate = db.Column(db.Float)
     converted_amount = db.Column(db.Float)
 
-    __tablename__ = 'currencyConversion'
+    __tablename__ = 'currency_conversion'
