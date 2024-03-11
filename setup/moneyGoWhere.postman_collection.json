@@ -24,11 +24,11 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8081/expenses/create",
+							"raw": "localhost:5000/expenses/create",
 							"host": [
 								"localhost"
 							],
-							"port": "8081",
+							"port": "5000",
 							"path": [
 								"expenses",
 								"create"
@@ -478,7 +478,7 @@
 					"response": []
 				},
 				{
-					"name": "Recurring Frequency read Copy",
+					"name": "readAllIcon",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -501,6 +501,95 @@
 								"",
 								"icon",
 								"readAllIcon"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "User read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"junjie.wee@ncs.com.sg\"\r\n}\r\n\r\n// {\r\n//     \"user_id\": \"2\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/user/readUser",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"user",
+								"readUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"junjie.wee@ncs.com.sg\"\r\n}\r\n\r\n// {\r\n//     \"user_id\": \"2\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/user/readUser",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"user",
+								"readUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"junjie.wee@ncs.com.sg\"\r\n}\r\n\r\n// {\r\n//     \"user_id\": \"2\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/user/readUser",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"user",
+								"readUser"
 							]
 						}
 					},

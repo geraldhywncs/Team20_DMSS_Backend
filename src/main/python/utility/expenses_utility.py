@@ -172,7 +172,6 @@ class Expenses_Utility:
                         status_code = convert_currency_response.status_code
 
                     if status_code != 200:
-                        print("Skipping due to status code 500")
                         convert_currency_response_content = convert_currency_response.get_data(as_text=True)
                         db.session.rollback()
                         print("convert_currency_response_content (status code 500/400):", convert_currency_response_content)
