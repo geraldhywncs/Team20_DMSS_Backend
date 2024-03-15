@@ -114,7 +114,7 @@ class User_Utility:
                 reset_link = f"https://example.com/reset-password?token={reset_token}"
                 print(f"Reset link: {reset_link}")
                 self.send_reset_password_email(reset_link, email)
-                return jsonify(message='Password reset email sent successfully.')
+                return jsonify(message='Password reset email sent successfully.', status_code=200)
 
             return jsonify(message='Email not found.', status_code=404), 404
 
