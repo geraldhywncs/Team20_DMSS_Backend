@@ -1,0 +1,8 @@
+1. Pytesseract (https://pypi.org/project/pytesseract/)
+	- Pillow: pip install pillow
+	- In case path not configured: https://stackoverflow.com/questions/36835341/pip-is-not-recognized
+	- Tesseract for windows: https://github.com/UB-Mannheim/tesseract/wiki
+	
+
+2. OpenCV (https://pypi.org/project/opencv-python/): pip install opencv-python
+3. Skimage (https://scikit-image.org/docs/stable/user_guide/install.html#install-via-pip): python -m pip install -U scikit-image

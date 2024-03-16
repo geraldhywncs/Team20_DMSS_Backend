@@ -1,0 +1,7 @@
+flask
+sqlalchemy
+mysql-connector-python
+Flask-SQLAlchemy
+flask_sqlalchemy
+flask_cors
+CurrencyConverter
