@@ -30,9 +30,9 @@
 
 1. Open anaconda prompt
 2. conda create -n moneyGoWhere python=3.11.7
-3. conda activate moneyGoWhere
+3. conda activate moneyGoWhere 
 4. cd path/to/requirement.txt
-5. pip install -r requirement.txt
+5. pip install -r requirement.txt                🎇Just to be sure, run this if there are new imports🎇
 6. Open ..src/main/python/config.ini
 7. Edit USERNAME, PASSWORD, PORT
 
@@ -49,3 +49,14 @@
 1. Open Postman
 2. Import setup/moneyGoWhere.postman_collection.json
 3. After setup, try to call the api
+
+## Testing Connection on Postman
+1. Create Post Request (http://localhost:5000/currency/currencyConverter)
+2. In the body select raw and copy, paste the following
+
+{
+    "amount": 69.69,
+    "from_currency": "USD",
+    "to_currency": "SGD"
+}
+
