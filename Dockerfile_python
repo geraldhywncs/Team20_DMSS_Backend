@@ -17,9 +17,9 @@ WORKDIR /app
 # For example, if using pip:
 COPY requirement.txt .
 RUN conda install -n moneyGoWhere pip && \
-    echo | conda run -n moneyGoWhere pip install -r requirement.txt
-
-RUN echo | conda run -n moneyGoWhere pip install flask_sqlalchemy
+    echo | conda run -n moneyGoWhere pip install -r requirement.txt && \
+    echo | conda run -n moneyGoWhere pip install flask_sqlalchemy && \
+    echo | conda run -n moneyGoWhere pip install requests  # Add this line to install requests module
 
 # Expose the port on which the app will run
 EXPOSE 8081
@@ -27,4 +27,3 @@ EXPOSE 8081
 # Command to run the application
 WORKDIR /app/src/main/python
 CMD ["conda", "run", "-n", "moneyGoWhere", "python", "main.py"]
-

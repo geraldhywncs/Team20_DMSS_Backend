@@ -5,7 +5,6 @@ from utility.grouping_utility import Grouping_Utility
 from utility.currency_utility import Currency_Utility
 import json
 import base64
-from forex_python.converter import CurrencyRates
 from decimal import Decimal, ROUND_HALF_UP
 import requests
 import time
