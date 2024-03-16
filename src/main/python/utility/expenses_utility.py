@@ -22,13 +22,13 @@ class Expenses_Utility:
             if expense_id is not None:
                 expense = Expenses_Model.query.get(expense_id)
                 if expense:
-                    return jsonify(id=expense.id, name=expense.name, expenses=expense.expenses)
+                    return jsonify(user_id=expense.user_id, share_amount=expense.share_amount, receipt_id=expense.receipt_id)
                 else:
                     return jsonify(message=f'Expense with ID {expense_id} not found'), 404
             else:
                 expenses = Expenses_Model.query.all()
                 if expenses:
-                    expense_list = [{'id': expense.id, 'name': expense.name, 'expenses': expense.expenses} for expense in expenses]
+                    expense_list = [{'user_id': expense.user_id, 'share_amount': expense.share_amount, 'receipt_id': expense.receipt_id} for expense in expenses]
                     return jsonify(expenses=expense_list)
                 else:
                     return jsonify(message=f'Expenses are not found'), 404
@@ -126,11 +126,12 @@ class Expenses_Utility:
                 created_user_id=data['user_id'],
                 title=data['title'],
                 description=data['description'],
-                created_datetime=datetime.now(),
+                created_datetime=datetime.utcnow(),
                 group_id=data['group_id'],
                 recur_id=data['recur_id'],
                 cat_id=data['cat_id'],
-                icon_id=data['icon_id']
+                icon_id=data['icon_id'],
+                updated_recur_datetime=datetime.utcnow(),
             )
             db.session.begin_nested()
             db.session.add(new_receipt)
@@ -290,7 +291,7 @@ class Expenses_Utility:
 
             db.session.commit()
 
-            return jsonify(message='Transaction created successfully!', status_code="200")
+            return jsonify(message='Transaction created successfully!', status_code="200"), 200
         except Exception as e:
             db.session.rollback()
             return jsonify(message=f'Error creating expense: {str(e)}', status_code="500"), 500
