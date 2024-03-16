@@ -45,6 +45,14 @@ class User_Utility:
         config.read(config_file_path)
         PASSWORD_FERNET_KEY = config.get('password', 'PASSWORD_FERNET_KEY')
         return PASSWORD_FERNET_KEY
+    
+    def read_reset_password_url(self):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config_file_path = os.path.join(current_dir, '..', 'config.ini')
+        config = ConfigParser()
+        config.read(config_file_path)
+        RESETPASSWORD = config.get('url', 'RESETPASSWORD')
+        return RESETPASSWORD
 
     def decrypt_password(self, password):
         key = self.read_fernet_key()
@@ -112,8 +120,8 @@ class User_Utility:
                 db.session.begin_nested()
                 db.session.add(new_reset_password)
                 db.session.commit()
-
-                reset_link = f"https://example.com/reset-password?token={reset_token}"
+                RESETPASSWORD = self.read_reset_password_url()
+                reset_link = f'{RESETPASSWORD}email={email}&token={reset_token}'
                 print(f"Reset link: {reset_link}")
                 self.send_reset_password_email(reset_link, email)
                 return jsonify(message='Password reset email sent successfully.', status_code=200)
@@ -155,15 +163,27 @@ class User_Utility:
                     return jsonify(message='Invalid request. Please provide email.', status_code=400), 400
             if "new_password" not in data:
                     return jsonify(message='Invalid request. Please provide new password.', status_code=400), 400
+            if "token" not in data:
+                    return jsonify(message='Invalid request. Please provide token.', status_code=400), 400
             email = data.get('email')
             new_password = data.get('new_password')
+            reset_token = data.get('token')
             user = User_Model.query.filter_by(email=email).first()
             if not user:
                 return jsonify(message=f'User with email {email} not found'), 404
             else:
-                user.password = self.encrypt_password(new_password.encode('utf-8'))
-                db.session.commit()
-                return jsonify(message='Password updated successfully!', status_code="200"), 200
+                token = Reset_Password_Model.query.filter_by(reset_token=reset_token).first()
+                if not token:
+                    return jsonify(message=f'User with token {token} not found'), 404
+                else:
+                    print(token.user_id)
+                    print(user.user_id)
+                    if token.user_id == user.user_id:
+                        user.password = self.encrypt_password(new_password.encode('utf-8'))
+                        db.session.commit()
+                        return jsonify(message='Password updated successfully!', status_code="200"), 200
+                    else:
+                        return jsonify(message='Wrong token provided.', status_code="400"), 400
         except Exception as e:
             return jsonify(message=f'Error update user: {str(e)}', status_code="500"), 500
 

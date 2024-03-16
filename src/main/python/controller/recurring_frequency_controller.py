@@ -13,4 +13,5 @@ class Recurring_Frequency_Controller:
         def read_all_recurring_frequency():
             data = request.get_json()
             return self.recurring_frequency_utility.read_all_recurring_frequency(data)
+
         

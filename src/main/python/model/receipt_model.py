@@ -11,6 +11,7 @@ class Receipt_Model(db.Model):
     recur_id = db.Column(db.Integer) #, db.ForeignKey('recurring_frequency.id')
     cat_id = db.Column(db.Integer) #, db.ForeignKey('category.id')
     icon_id = db.Column(db.Integer) #, db.ForeignKey('icon.id')
+    updated_recur_datetime = db.Column(db.DateTime)
 
     __tablename__ = 'receipt'
 
