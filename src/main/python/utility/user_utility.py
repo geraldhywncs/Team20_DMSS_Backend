@@ -92,6 +92,8 @@ class User_Utility:
     
     def forgot_password(self, data):
         try:
+            if "email" not in data:
+                return jsonify(message='Invalid request. Please provide email.', status_code=400), 400
             email = data.get('email')
             user_response = self.read_user({"email": email})
             if isinstance(user_response, tuple):
@@ -147,4 +149,21 @@ class User_Utility:
         except Exception as e:
             return jsonify(message='Error sending email: {e}', status_code=500), 500
 
+    def change_password(self, data):
+        try:
+            if "email" not in data:
+                    return jsonify(message='Invalid request. Please provide email.', status_code=400), 400
+            if "new_password" not in data:
+                    return jsonify(message='Invalid request. Please provide new password.', status_code=400), 400
+            email = data.get('email')
+            new_password = data.get('new_password')
+            user = User_Model.query.filter_by(email=email).first()
+            if not user:
+                return jsonify(message=f'User with email {email} not found'), 404
+            else:
+                user.password = self.encrypt_password(new_password.encode('utf-8'))
+                db.session.commit()
+                return jsonify(message='Password updated successfully!', status_code="200"), 200
+        except Exception as e:
+            return jsonify(message=f'Error update user: {str(e)}', status_code="500"), 500
 
