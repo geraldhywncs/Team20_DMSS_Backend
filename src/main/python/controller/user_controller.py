@@ -28,3 +28,8 @@ class User_Controller:
         def forgot_password():
             data = request.get_json()
             return self.user_utility.forgot_password(data)
+        
+        @app.route('/user/changePassword', methods=['POST'])
+        def change_password():
+            data = request.get_json()
+            return self.user_utility.change_password(data)
