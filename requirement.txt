@@ -9,3 +9,4 @@ requests
 forex_python
 cryptography
 pytest
+schedule
