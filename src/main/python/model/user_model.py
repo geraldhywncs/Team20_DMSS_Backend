@@ -7,5 +7,8 @@ class User_Model(db.Model):
     email = db.Column(db.String(255))
     password = db.Column(db.String(255))
     account_status = db.Column(db.String(255))
+    # first_name = db.Column(db.String(255))
+    # last_name = db.Column(db.String(255))
+    # bio = db.Column(db.string(255))
 
     __tablename__ = 'users'

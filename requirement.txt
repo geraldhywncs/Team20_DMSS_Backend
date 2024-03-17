@@ -8,3 +8,4 @@ CurrencyConverter
 requests
 forex_python
 cryptography
+pytest
