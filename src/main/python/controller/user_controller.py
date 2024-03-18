@@ -9,6 +9,11 @@ class User_Controller:
         with app.app_context():
             db.create_all()
 
+        @app.route('/user/id', methods=["GET"])
+        def get_user(user_id):
+            return self.user_utility.get_user(user_id)
+
+
         @app.route('/user/readUser', methods=['POST'])
         def read_user():
             data = request.get_json()

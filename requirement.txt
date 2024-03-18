@@ -8,5 +8,6 @@ CurrencyConverter
 requests
 forex_python
 cryptography
-schedule
 pytest
+schedule
+
