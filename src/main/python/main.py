@@ -52,6 +52,7 @@ def scheduler_thread(flask_app):
         schedule.run_pending()  # Check for pending tasks
         time.sleep(1)  # Sleep for a short duration
 
+# Only if running main.py then run below code
 if __name__ == '__main__':
     # scheduler = threading.Thread(target=scheduler_thread)
     # scheduler.start()

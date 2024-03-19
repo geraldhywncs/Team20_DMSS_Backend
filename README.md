@@ -5,19 +5,19 @@
 Note: Run steps 1-6 if first time. Run steps 4-6 if already created before.
 
 1. docker network create dmss (Create docker network if not yet created)
-2. docker build -t mysql_server_1 -f Dockerfile_mysql_server_1 .
-3. docker rm -f mysql_instance_1 || true && docker run -d --name mysql_instance_1 --network=dmss -p 3306:3306 mysql_server_1
-4. docker start mysql_instance_1
-5. docker exec -it mysql_instance_1 mysql -uroot -p
+2. docker build -t dmss_mysql_image -f Dockerfile.mysql .
+3. docker run -d --name dmss_mysql_container --network=dmss -p 3306:3306 dmss_mysql_image
+4. docker start dmss_mysql_container
+5. docker exec -it dmss_mysql_container mysql -uroot -p
 6. Note: password = default1111
 
-## Docker Backend Image Build - Python
+## Docker Python
 
 1. docker network create dmss (Create docker network if not yet created)
-2. docker build -t python_api_image -f Dockerfile_python .
-3. docker rm -f dmss_backend || true && docker run -d -e DOCKER_CONTAINER=true --name dmss_backend --network=dmss -p 5000:5000 python_api_image
+2. docker build -t dmss_python_image -f Dockerfile.python .
+3. docker rm -f dmss_python_container || true && docker run -d -e DOCKER_CONTAINER=true --name dmss_python_container --network=dmss -p 5000:5000 dmss_python_image
 
-## Python Backend Local Setup
+## Backend Local Setup Python
 
 1. Open anaconda prompt
 2. conda create -n moneyGoWhere python=3.11.7
