@@ -16,18 +16,11 @@ import getpass
 
 
 class User_Utility:
-    def __init__(self):
-        return 
-
     def create_user(self, user_name, email, password, account_status):
-        try:
-            new_user = User_Model(user_name=user_name, email=email, password=password, account_status=account_status)
-            db.session.add(new_user)
-            db.session.commit()
-            return jsonify(message="User created successfully", status_code=200), 200
-        
-        except Exception as e:
-            return jsonify(message=f'Error in create_user(): {str(e)}', status_code=500), 500
+        user = User_Model(user_name=user_name, email=email, password=password, account_status=account_status)
+        db.session.add(user)
+        db.session.commit()
+        return user.to_dict()
 
     def get_user(self, user_id):
         try:

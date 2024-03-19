@@ -12,3 +12,12 @@ class User_Model(db.Model):
     # bio = db.Column(db.string(255))
 
     __tablename__ = 'users'
+
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'user_name': self.user_name,
+            'email': self.email,
+            'password': self.password,
+            'account_status': self.account_status
+        }
