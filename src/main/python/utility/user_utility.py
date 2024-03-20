@@ -17,18 +17,25 @@ import getpass
 
 class User_Utility:
     def create(self, user_name, email, password, first_name, last_name):
-        user = User_Model(user_name=user_name, email=email, password=password, first_name=first_name, last_name=last_name, bio='')
-        db.session.add(user)
-        db.session.commit()
-        return user.to_dict()
+        try:
+            user = User_Model(user_name=user_name, email=email, password=password, first_name=first_name, last_name=last_name, bio='')
+            db.session.add(user)
+            db.session.commit()
+            return user.to_dict(), 201
+        except Exception as e:
+            db.session.rollback()
+            return f'Error in User_Utility.create(): {str(e)}', 500
 
-    def get_user(self, user_id):
+    def get(self, user_id):
         try:
             user = User_Model.query.get(user_id)
-            return jsonify(user_id=user.user_id, user_name=user.user_name, email=user.email, password=user.password, account_status=user.account_status, status_code="200"), 200
+            if user is not None:
+                return user.to_dict(), 200
+            else:
+                return 'User not found', 404
         except Exception as e:
-            return jsonify(message=f'Error in get_user(): {str(e)}', status_code=500), 500
-
+            return f'Error in User_Utility.get(): {str(e)}', 500
+        
     def read_user(self, data):
         try:
             if "email" not in data and "user_id" not in data:

@@ -12,6 +12,17 @@ class Groups_Utility:
         #         return jsonify(message='Group created successfully!')
         #     except Exception as e:
         #         return jsonify(message=f'Error creating group: {str(e)}'), 500
+
+        def get(self, group_id):
+            try:
+                group = Groups_Model.query.get(group_id).all()
+                if group is not None:
+                    return group.to_dict(), 200
+                else:
+                    return 'Group not found', 404
+            except Exception as e:
+                return f'Error in Groups_Utility.get(): {str(e)}', 500
+
             
         def read_groups(self, data):
             try:

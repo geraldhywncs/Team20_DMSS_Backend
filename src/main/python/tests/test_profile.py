@@ -14,12 +14,15 @@ def client():
     with app.test_client() as client:
         yield client
 
+# write test cases for get_profile
+
 def test_create_user(client):
     user_data = {
         'user_name': 'testuser',
         'email': 'test@example.com',
         'password': 'testpassword',
-        'account_status': 'active'
+        'first_name': 'john',
+        'last_name': 'doe',
     }
 
     # Send POST request to create user
@@ -33,4 +36,6 @@ def test_create_user(client):
     assert created_user['user_name'] == user_data['user_name']
     assert created_user['email'] == user_data['email']
     assert created_user['password'] == user_data['password']
-    assert created_user['account_status'] == user_data['account_status']
+    assert created_user['first_name'] == user_data['first_name']
+    assert created_user['last_name'] == user_data['last_name']
+    assert created_user['bio'] == ''
