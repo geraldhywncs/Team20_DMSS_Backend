@@ -8,3 +8,9 @@ CurrencyConverter
 requests
 forex_python
 cryptography
+<<<<<<< HEAD
+=======
+pytest
+schedule
+
+>>>>>>> 3f9fa3efbaf771cc8913709355726e9ea044c894
