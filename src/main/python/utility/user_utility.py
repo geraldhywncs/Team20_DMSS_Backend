@@ -16,8 +16,8 @@ import getpass
 
 
 class User_Utility:
-    def create_user(self, user_name, email, password, account_status):
-        user = User_Model(user_name=user_name, email=email, password=password, account_status=account_status)
+    def create(self, user_name, email, password, first_name, last_name):
+        user = User_Model(user_name=user_name, email=email, password=password, first_name=first_name, last_name=last_name, bio='')
         db.session.add(user)
         db.session.commit()
         return user.to_dict()
@@ -39,13 +39,13 @@ class User_Utility:
                 user = User_Model.query.filter_by(email=email).first()
                 print(user)
                 if user:
-                    return jsonify(user_id=user.user_id, user_name=user.user_name, email=user.email, password=user.password, account_status=user.account_status, status_code="200"), 200
+                    return jsonify(user=user.to_dict(), status_code="200"), 200
             elif "user_id" in data and "email" not in data:
                 print("user_id")
                 user_id = data.get('user_id')
                 user = User_Model.query.get(user_id)
                 if user:
-                    return jsonify(user_id=user.user_id, user_name=user.user_name, email=user.email, password=user.password, account_status=user.account_status, status_code="200"), 200
+                    return jsonify(user=user.to_dict(), status_code="200"), 200
         except Exception as e:
             return jsonify(message=f'Error reading user: {str(e)}', status_code="500"), 500
     

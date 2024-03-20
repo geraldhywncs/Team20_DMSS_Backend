@@ -10,7 +10,7 @@ class Grouping_Utility:
             if group_id is not None:
                 grouping = Grouping_Model.query.filter_by(group_id=group_id).all()
                 if grouping:
-                    grouping_list = [{'id': group.grouping_id, 'user_id': group.user_id, 'group_id': group.group_id} for group in grouping]
+                    grouping_list = [group.to_dict() for group in grouping]
                     return jsonify(grouping=grouping_list)
                 else:
                     return jsonify(message=f'Group with ID {group_id} not found'), 404

@@ -7,7 +7,6 @@ class User_Controller:
         self.app = app
         self.user_utility = User_Utility()
         
-        # Gerald - WIP: DO NOT TOUCH
         @app.route('/users', methods=["POST"])
         def create_user():
             # Get user data from request

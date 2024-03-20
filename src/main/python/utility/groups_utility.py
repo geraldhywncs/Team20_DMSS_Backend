@@ -19,7 +19,7 @@ class Groups_Utility:
                 if user_id is not None:
                     groups = Groups_Model.query.filter_by(user_id=user_id).all()
                     if groups:
-                        group_list = [{'group_id': group.group_id, 'group_name': group.group_name, 'user_id': group.user_id} for group in groups]
+                        group_list = [group.to_dict() for group in groups]
                         return jsonify(groups=group_list, status_code='200')
                     else:
                         return jsonify(message=f'Group with ID {user_id} not found', status_code='404'), 404
