@@ -21,7 +21,7 @@ class Recurring_Frequency_Utility:
                     return jsonify(message='Recurring frequencies are not found', status_code='404'), 404
             else:
                 recurring_id = data.get('recurring_id')
-                recurring_frequency = Recurring_Frequency_Model.query.get(recurring_id)
+                recurring_frequency = db.session.get(Recurring_Frequency_Model, recurring_id)
                 if recurring_frequency:
                     return jsonify(recurring_id=recurring_frequency.recurring_id, recur_name=recurring_frequency.recur_name, status_code='200'), 200
                 else:

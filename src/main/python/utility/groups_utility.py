@@ -28,7 +28,7 @@ class Groups_Utility:
             try:
                 group_id = data.get('group_id')
                 if group_id is not None:
-                    groups = Groups_Model.query.get(group_id)
+                    groups = db.session.get(Groups_Model, group_id)
                     if groups:
                         return jsonify(groups=groups.to_dict(), status_code='200')
                     else:

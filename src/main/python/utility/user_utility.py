@@ -60,7 +60,7 @@ class User_Utility:
                     return jsonify(message=f'User with email {email} not found', status_code='404'), 404
             elif "user_id" in data and "email" not in data:
                 user_id = data.get('user_id')
-                user = User_Model.query.get(user_id)
+                user = db.session.get(User_Model, user_id)
                 if user:
                     return jsonify(user=user.to_dict(), status_code="200"), 200
                 else:
