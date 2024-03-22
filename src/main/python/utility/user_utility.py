@@ -41,18 +41,19 @@ class User_Utility:
             if "email" not in data and "user_id" not in data:
                 return jsonify(message='Invalid request. Please provide user id or email.', status_code=400), 400
             elif "email" in data and "user_id" not in data:
-                print("email")
                 email = data.get('email')
                 user = User_Model.query.filter_by(email=email).first()
-                print(user)
                 if user:
                     return jsonify(user=user.to_dict(), status_code="200"), 200
+                else:
+                    return jsonify(message=f'User with email {email} not found', status_code='404'), 404
             elif "user_id" in data and "email" not in data:
-                print("user_id")
                 user_id = data.get('user_id')
                 user = User_Model.query.get(user_id)
                 if user:
                     return jsonify(user=user.to_dict(), status_code="200"), 200
+                else:
+                    return jsonify(message=f'User with ID {user_id} not found', status_code='404'), 404
         except Exception as e:
             return jsonify(message=f'Error reading user: {str(e)}', status_code="500"), 500
     
@@ -74,6 +75,7 @@ class User_Utility:
 
     def decrypt_password(self, password):
         key = self.read_fernet_key()
+        print(key)
         cipher_suite = Fernet(key)
         return cipher_suite.decrypt(password).decode()
     
@@ -93,21 +95,22 @@ class User_Utility:
                 return jsonify(message='Invalid request. Please provide password.', status_code=400), 400
             
             user_response = self.read_user({"email": data.get('email')})
-
             if isinstance(user_response, tuple):
                 user_response, status_code = user_response
             else:
                 status_code = user_response.status_code
 
+
             if status_code == 200:
                 user_response_content = user_response.get_data(as_text=True)
                 user_data = json.loads(user_response_content)
-                user_password = user_data.get("password")
+                user_password = user_data.get("user").get("password")
+                print(user_password)
                 decrypted_password = self.decrypt_password(user_password)
                 print(f"decrypted_password {decrypted_password}")
                 print(f"data.get('email') {data.get('email')}")
                 if decrypted_password == data.get('password'):
-                    user_id = user_data.get("user_id")
+                    user_id = user_data.get("user").get("user_id")
                     return jsonify(user_id=user_id, status_code="200"), 200
                 else:
                     return jsonify(status_code="400"), 400
@@ -132,7 +135,7 @@ class User_Utility:
                 user_response_content = user_response.get_data(as_text=True)
                 user_data = json.loads(user_response_content)
                 new_reset_password = Reset_Password_Model(
-                    user_id = user_data.get("user_id"),
+                    user_id = user_data.get("user").get("user_id"),
                     reset_token = reset_token
                 )
                 db.session.begin_nested()

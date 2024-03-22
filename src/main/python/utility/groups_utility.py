@@ -26,16 +26,17 @@ class Groups_Utility:
             
         def read_groups(self, data):
             try:
-                user_id = data.get('user_id')
-                if user_id is not None:
-                    groups = Groups_Model.query.filter_by(user_id=user_id).all()
+                group_id = data.get('group_id')
+                if group_id is not None:
+                    groups = Groups_Model.query.get(group_id)
                     if groups:
-                        group_list = [group.to_dict() for group in groups]
-                        return jsonify(groups=group_list, status_code='200')
+                        return jsonify(groups=groups.to_dict(), status_code='200')
                     else:
-                        return jsonify(message=f'Group with ID {user_id} not found', status_code='404'), 404
+                        return jsonify(message=f'Group with ID {group_id} not found', status_code='404'), 404
                 else:
-                    return jsonify(message=f'User id is not provided', status_code='404'), 404
+                    groups = Groups_Model.query.all()
+                    group_list = [group.to_dict() for group in groups]
+                    return jsonify(groups=group_list, status_code='200')
             except Exception as e:
                 return jsonify(message=f'Error reading groups: {str(e)}', status_code='500'), 500
 
