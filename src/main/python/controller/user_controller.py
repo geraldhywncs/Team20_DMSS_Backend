@@ -50,24 +50,23 @@ class User_Controller:
 
             return jsonify(user=user, friends=friends, groups=groups), 200
         
-        @app.route('/users', methods=["POST"])
-        def create_user():
-            # Get user data from request
-            user_name = request.form['user_name']
-            email = request.form['email']
-            password = request.form['password']
-            first_name = request.form['first_name']
-            last_name = request.form['last_name']
+        @app.route('/user/<userID>', methods=["PUT"])
+        def update_profile(userID):
+            data = request.get_json()
+            user_details = data.get('user_details')
 
-            # Create a user instance
             user_db = User_Utility()
-            userResult, status_code = user_db.create(user_name, email, password, first_name, last_name)
-
-            if isinstance(userResult, dict):
-                return jsonify(message='User created successfully', user=userResult), status_code
-            else:
-                return jsonify(message=userResult, user=None), status_code
-
+            user, user_status_code = user_db.update(
+                user_id=userID, 
+                first_name=user_details.get('first_name'),
+                last_name=user_details.get('last_name'),
+                user_name=user_details.get('user_name'),
+                bio=user_details.get('bio'),
+            )
+            if not isinstance(user, dict):
+                return jsonify(message=user), user_status_code
+            
+            return jsonify(user=user), user_status_code
 
 
         @app.route('/user/readUser', methods=['POST'])

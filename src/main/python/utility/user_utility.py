@@ -36,9 +36,24 @@ class User_Utility:
         except Exception as e:
             return f'Error in User_Utility.get(): {str(e)}', 500
         
+    def update(self, user_id, first_name, last_name, user_name, bio):
+        try:
+            user = db.session.get(User_Model, user_id)
+            if user is None:
+                return 'User not found', 404
+            else:
+                user.first_name = first_name
+                user.last_name = last_name
+                user.user_name = user_name
+                user.bio = bio
+                db.session.commit()
+            return user.to_dict(), 200
+        except Exception as e:
+            db.session.rollback()
+            return f'Error in User_Utility.update(): {str(e)}', 500
+        
     def list_by_user_ids(self, user_ids):
         try:
-            print(user_ids)
             users = User_Model.query.filter(User_Model.user_id.in_(user_ids)).all()
             users_list = [user.to_dict() for user in users]
             return users_list, 200

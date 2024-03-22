@@ -1,9 +1,11 @@
+# update root dir
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
+# import
 from main import app
 from flask import json
 import pytest
@@ -12,7 +14,6 @@ from utility.user_utility import User_Utility
 from utility.friends_utility import Friends_Utility
 from utility.groups_utility import Groups_Utility
 from utility.grouping_utility import Grouping_Utility
-
 
 @pytest.fixture
 def client():
@@ -71,7 +72,6 @@ def test_get_profile_success(client, init_db, setup):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    print(data)
 
     user = data['user']
     assert user['user_name'] == user1['user_name']
