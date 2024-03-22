@@ -3,13 +3,14 @@ from config.database_config import db
 from utility.user_utility import User_Utility
 from utility.groups_utility import Groups_Utility
 from utility.grouping_utility import Grouping_Utility
+from utility.friends_utility import Friends_Utility
 
 class User_Controller:
     def __init__(self, app):
         self.app = app
         self.user_utility = User_Utility()
 
-        @app.route('/profile/<userID>')
+        @app.route('/profile/<userID>', methods=["GET"])
         def get_profile(userID):
             # Get profile data
             user_db = User_Utility()
@@ -18,6 +19,11 @@ class User_Controller:
                 return jsonify(message=user), user_status_code
 
             # Get friends data
+            friends_db = Friends_Utility()
+            friend_ids, _ = friends_db.list_friend_ids_by_user_id(user_id=user.get('user_id'))
+            friends, friends_status_code = user_db.list_by_user_ids(friend_ids)
+            if not isinstance(friends, list):
+                return jsonify(message=friends), friends_status_code
 
             # Get grouping data
             groups = []
@@ -42,10 +48,7 @@ class User_Controller:
                 group_name = groups_db.get(group_id=id)
                 groups.append({'members': members, 'name': group_name})
 
-            return jsonify(user=user, groups=groups), 200
-
-
-
+            return jsonify(user=user, friends=friends, groups=groups), 200
         
         @app.route('/users', methods=["POST"])
         def create_user():

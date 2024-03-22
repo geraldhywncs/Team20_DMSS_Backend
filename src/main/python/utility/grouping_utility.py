@@ -7,6 +7,15 @@ import json
 from sqlalchemy.orm import join
 
 class Grouping_Utility:
+    def create(self, group_id, user_id):
+        try:
+            grouping = Grouping_Model(group_id=group_id, user_id=user_id)
+            db.session.add(grouping)
+            db.session.commit()
+            return grouping.to_dict(), 201
+        except Exception as e:
+            db.session.rollback()
+            return f'Error in Grouping_Utility.create(): {str(e)}', 500
 
     def list_group_ids_by_user_id(self, user_id):
         try:

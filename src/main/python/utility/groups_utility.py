@@ -3,19 +3,19 @@ from config.database_config import db
 from model.groups_model import Groups_Model
 
 class Groups_Utility:
-            
-        # def create_group(self, data):
-        #     try:
-        #         new_group = Groups_Model(name=data['name'])
-        #         db.session.add(new_group)
-        #         db.session.commit()
-        #         return jsonify(message='Group created successfully!')
-        #     except Exception as e:
-        #         return jsonify(message=f'Error creating group: {str(e)}'), 500
+        def create(self, group_name):
+            try:
+                group = Groups_Model(group_name=group_name)
+                db.session.add(group)
+                db.session.commit()
+                return group.to_dict(), 201
+            except Exception as e:
+                db.session.rollback()
+                return f'Error in Groups_Utility.create(): {str(e)}', 500
 
         def get(self, group_id):
             try:
-                group = Groups_Model.query.get(group_id).all()
+                group = db.session.get(Groups_Model, group_id)
                 if group is not None:
                     return group.to_dict(), 200
                 else:

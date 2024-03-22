@@ -28,13 +28,24 @@ class User_Utility:
 
     def get(self, user_id):
         try:
-            user = User_Model.query.get(user_id)
+            user = db.session.get(User_Model, user_id)
             if user is not None:
                 return user.to_dict(), 200
             else:
                 return 'User not found', 404
         except Exception as e:
             return f'Error in User_Utility.get(): {str(e)}', 500
+        
+    def list_by_user_ids(self, user_ids):
+        try:
+            print(user_ids)
+            users = User_Model.query.filter(User_Model.user_id.in_(user_ids)).all()
+            users_list = [user.to_dict() for user in users]
+            return users_list, 200
+        except Exception as e:
+            return f'Error in User_Utility.list_by_user_ids(): {str(e)}', 500
+            
+
         
     def read_user(self, data):
         try:
