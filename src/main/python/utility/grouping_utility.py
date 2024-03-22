@@ -2,7 +2,23 @@ from flask import Flask, jsonify, request
 from config.database_config import db
 from model.grouping_model import Grouping_Model
 import json
+
 class Grouping_Utility:
+
+    def list_group_ids_by_user_id(self, user_id):
+        try:
+            groupings = Grouping_Model.query.filter_by(user_id=user_id).all()
+            return [grouping.group_id for grouping in groupings], 200
+        except Exception as e:
+            return f'Error in Grouping_Utility.list_group_ids_by_user_id(): {str(e)}', 500
+
+    def list_user_ids_by_group_id(self, group_id):
+        try:
+            groupings = Grouping_Model.query.filter_by(group_id=group_id).all()
+            return [grouping.user_id for grouping in groupings], 200
+        except Exception as e:
+            return f'Error in Grouping_Utility.list_user_ids_by_group_id(): {str(e)}', 500
+
 
     def read_grouping_by_group_id(self, data):
         try:
@@ -10,7 +26,7 @@ class Grouping_Utility:
             if group_id is not None:
                 grouping = Grouping_Model.query.filter_by(group_id=group_id).all()
                 if grouping:
-                    grouping_list = [{'id': group.grouping_id, 'user_id': group.user_id, 'group_id': group.group_id} for group in grouping]
+                    grouping_list = [group.to_dict() for group in grouping]
                     return jsonify(grouping=grouping_list)
                 else:
                     return jsonify(message=f'Group with ID {group_id} not found'), 404
