@@ -57,7 +57,9 @@ def setup():
         last_name="3"
     )
     friends_db.create(user_id=user1.get('user_id'), friend_id=user2.get('user_id'))
+    friends_db.create(user_id=user2.get('user_id'), friend_id=user1.get('user_id'))
     friends_db.create(user_id=user1.get('user_id'), friend_id=user3.get('user_id'))
+    friends_db.create(user_id=user3.get('user_id'), friend_id=user1.get('user_id'))
     group1, _ = groups_db.create(group_name='group1')
     group2, _ = groups_db.create(group_name='group2')
     grouping_db.create(group_id=group1.get('group_id'), user_id=user1.get('user_id'))

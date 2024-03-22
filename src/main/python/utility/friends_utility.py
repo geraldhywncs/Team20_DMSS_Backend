@@ -15,6 +15,13 @@ class Friends_Utility:
             db.session.rollback()
             return f'Error in Friends_Utility.create(): {str(e)}', 500
 
+    def list_by_user_id(self, user_id):
+        try:
+            friendship = Friends_Model.query.filter_by(user_id=user_id).all()
+            return [f.to_dict() for f in friendship], 200
+        except Exception as e:
+            return f'Error in Friends_Utility.list_by_user_id(): {str(e)}', 500
+
     def list_friend_ids_by_user_id(self, user_id):
         try:
             friendship = Friends_Model.query.filter_by(user_id=user_id).all()
