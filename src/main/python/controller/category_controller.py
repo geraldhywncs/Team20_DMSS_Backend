@@ -7,8 +7,6 @@ class Category_Controller:
     def __init__(self, app):
         self.app = app
         self.category_utility = Category_Utility()
-        with app.app_context():
-            db.create_all()
 
         @app.route('/category/readCategory', methods=['POST'])
         def read_category():

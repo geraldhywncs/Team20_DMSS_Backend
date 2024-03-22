@@ -6,8 +6,6 @@ class Recurring_Frequency_Controller:
     def __init__(self, app):
         self.app = app
         self.recurring_frequency_utility = Recurring_Frequency_Utility()
-        with app.app_context():
-            db.create_all()
         
         @app.route('/recurringFrequency/readAllrecurringFrequencies', methods=['POST'])
         def read_all_recurring_frequency():

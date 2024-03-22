@@ -8,8 +8,6 @@ class Currency_Controller:
     def __init__(self, app):
         self.app = app
         self.currency_utility = Currency_Utility()
-        with app.app_context():
-            db.create_all()
         
         @app.route('/currency/currencyConverter', methods=['POST'])
         def currency_converter_expense():

@@ -7,8 +7,6 @@ class Grouping_Controller:
     def __init__(self, app):
         self.app = app
         self.grouping_utility = Grouping_Utility()
-        with app.app_context():
-            db.create_all()
             
         @app.route('/grouping/read', methods=['POST'])
         def read_grouping():

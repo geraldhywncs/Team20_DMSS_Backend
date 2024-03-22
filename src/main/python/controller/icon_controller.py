@@ -6,8 +6,6 @@ class Icon_Controller:
     def __init__(self, app):
         self.app = app
         self.recurring_frequency_utility = Icon_Utility()
-        with app.app_context():
-            db.create_all()
         
         @app.route('/icon/readAllIcon', methods=['POST'])
         def read_all_icon():
