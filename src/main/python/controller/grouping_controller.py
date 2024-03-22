@@ -10,15 +10,15 @@ class Grouping_Controller:
         with app.app_context():
             db.create_all()
             
-        # @app.route('/grouping/readById', methods=['POST'])
-        # def read_grouping():
-        #     data = request.get_json()
-        #     return self.grouping_utility.read_grouping(data)
-            
-        @app.route('/grouping/create', methods=['POST'])
-        def create_grouping():
+        @app.route('/grouping/read', methods=['POST'])
+        def read_grouping():
             data = request.get_json()
-            return self.grouping_utility.create_grouping(data)
+            return self.grouping_utility.read_grouping_by_user_id(data)
+            
+        # @app.route('/grouping/create', methods=['POST'])
+        # def create_grouping():
+        #     data = request.get_json()
+        #     return self.grouping_utility.create_grouping(data)
             
         @app.route('/grouping/countUserGrouping', methods=['POST'])
         def count_number_of_user_in_group():

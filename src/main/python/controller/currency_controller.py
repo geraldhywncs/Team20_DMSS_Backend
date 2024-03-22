@@ -18,7 +18,8 @@ class Currency_Controller:
         
         @app.route('/currency/readAllCurrencies', methods=['POST'])
         def read_all_currencies():
-            return self.currency_utility.read_all_currencies()
+            data = request.get_json()
+            return self.currency_utility.read_all_currencies(data)
         
         @app.route('/currency/createCurrencyConverter', methods=['POST'])
         def create_currency_converter():
