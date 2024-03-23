@@ -7,6 +7,8 @@ sys.path.append(parent_dir)
 from main import app
 from flask import json
 import pytest
+from config.database_config import db
+from model.icon_model import Icon_Model
 
 
 @pytest.fixture
@@ -14,7 +16,40 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_read_all_icon_successed(client):
+@pytest.fixture(scope='function')
+def init_db():
+    """Initialize a clean database before each test."""
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        yield db
+        db.session.rollback()
+
+@pytest.fixture(scope="function")
+def setup():
+    # Insert data for icons
+    icon_data = [
+        ('commute'),
+        ('flight_takeoff'),
+        ('home'),
+        ('shopping_cart'),
+        ('sports_esports'),
+        ('restaurant'),
+        ('cake'),
+        ('cruelty_free'),
+        ('snowboarding'),
+        ('fitness_center'),
+        ('checkroom')
+    ]
+    for icon_name in icon_data:
+        icon_model = Icon_Model(
+            icon_name=icon_name
+        )
+        db.session.add(icon_model)
+    db.session.commit()
+    yield
+
+def test_read_all_icon_successed(client,init_db,setup):
     data = {}
 
     json_data = json.dumps(data)

@@ -79,6 +79,7 @@ class Grouping_Utility:
             db.session.commit()
             return jsonify(message='Grouping created successfully!', status_code = 200)
         except Exception as e:
+            db.session.rollback()
             return jsonify(message=f'Error creating grouping: {str(e)}', status_code = 500)
         
     def count_number_of_user_in_group(self, data):

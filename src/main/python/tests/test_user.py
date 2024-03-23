@@ -7,14 +7,52 @@ sys.path.append(parent_dir)
 from main import app
 from flask import json
 import pytest
-
+from config.database_config import db
+from model.user_model import User_Model
+from model.forgot_password_model import Reset_Password_Model
 
 @pytest.fixture
 def client():
     with app.test_client() as client:
         yield client
 
-def test_all_user_by_email_successed(client):
+@pytest.fixture(scope='function')
+def init_db():
+    """Initialize a clean database before each test."""
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        yield db
+        db.session.rollback()
+
+@pytest.fixture(scope="function")
+def setup():
+    # Insert data for icons
+    user_data = [
+        ('Jun Jie', 'junjie.wee@ncs.com.sg', 'gAAAAABl_bQCWhpP8BZXFfY1HuNDuin_nvSFaSEwEIol-1Hv-MbYNfP9wX-m31l34QrbmHIvv4argsqho2WePmIgTvX0TDJgPA=='),
+        ('Gerald', 'gerald.hoo@ncs.com.sg', 'gAAAAABl7uZHcn6ltKCWubI_t3Wu5J96Awvz3Jr-dR0dZ3YHrVV7MLlufoiATkek_eiA35SMyBeG0T76isaAgngQ4HagUN_lrg=='),
+        ('Wei Zee', 'weizee@ncs.com.sg', 'gAAAAABl7uZHcn6ltKCWubI_t3Wu5J96Awvz3Jr-dR0dZ3YHrVV7MLlufoiATkek_eiA35SMyBeG0T76isaAgngQ4HagUN_lrg==')
+    ]
+    for user_name, email, password in user_data:
+        user_model = User_Model(
+            user_name=user_name,
+            email=email,
+            password=password
+        )
+        db.session.add(user_model)
+    reset_password_data = [
+        ('2', 'V7AH--vvtf5cxzqP86qFEL-CwTVAona4gG8DtES-MSA')
+    ]
+    for user_id, reset_token in reset_password_data:
+        reset_password_model = Reset_Password_Model(
+            user_id=user_id,
+            reset_token=reset_token
+        )
+        db.session.add(reset_password_model)
+    db.session.commit()
+    yield
+
+def test_all_user_by_email_successed(client,init_db,setup):
     data = {"email": "junjie.wee@ncs.com.sg"}
 
     json_data = json.dumps(data)
