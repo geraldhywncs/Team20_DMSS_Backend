@@ -8,8 +8,6 @@ class Expenses_Controller:
     def __init__(self, app):
         self.app = app
         self.expenses_utility = Expenses_Utility()
-        with app.app_context():
-            db.create_all()
         
         @app.route('/expenses/create', methods=['POST'])
         def create_expense():

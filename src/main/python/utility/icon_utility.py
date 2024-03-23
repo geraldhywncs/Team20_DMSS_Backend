@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from model.icon_model import Icon_Model
+from config.database_config import db
 
 class Icon_Utility:
 
@@ -14,7 +15,7 @@ class Icon_Utility:
                     return jsonify(message='Icons are not found', status_code='404'), 404
             else:
                 icon_id = data.get('icon_id')
-                icon = Icon_Model.query.get(icon_id)
+                icon = db.session.get(Icon_Model, icon_id)
                 if icon:
                     return jsonify(icon_id=icon.icon_id, icon_name=icon.icon_name, status_code='200')
                 else:

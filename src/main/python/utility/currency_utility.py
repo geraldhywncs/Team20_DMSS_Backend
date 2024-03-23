@@ -44,7 +44,7 @@ class Currency_Utility:
                     return jsonify(message=f'Currencies are not found', status_code = '404'), 404
             else:
                 currencies_id = data.get('currencyId')
-                currencies = Currencies_Model.query.get(currencies_id)
+                currencies = db.session.get(Currencies_Model, currencies_id)
                 if currencies:
                     return jsonify(currency_id=currencies.currency_id, code=currencies.code, name=currencies.name, status_code = '200')
         except Exception as e:

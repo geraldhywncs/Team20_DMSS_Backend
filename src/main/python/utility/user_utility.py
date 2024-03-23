@@ -28,13 +28,39 @@ class User_Utility:
 
     def get(self, user_id):
         try:
-            user = User_Model.query.get(user_id)
+            user = db.session.get(User_Model, user_id)
             if user is not None:
                 return user.to_dict(), 200
             else:
                 return 'User not found', 404
         except Exception as e:
             return f'Error in User_Utility.get(): {str(e)}', 500
+        
+    def update(self, user_id, first_name, last_name, user_name, bio):
+        try:
+            user = db.session.get(User_Model, user_id)
+            if user is None:
+                return 'User not found', 404
+            else:
+                user.first_name = first_name
+                user.last_name = last_name
+                user.user_name = user_name
+                user.bio = bio
+                db.session.commit()
+            return user.to_dict(), 200
+        except Exception as e:
+            db.session.rollback()
+            return f'Error in User_Utility.update(): {str(e)}', 500
+        
+    def list_by_user_ids(self, user_ids):
+        try:
+            users = User_Model.query.filter(User_Model.user_id.in_(user_ids)).all()
+            users_list = [user.to_dict() for user in users]
+            return users_list, 200
+        except Exception as e:
+            return f'Error in User_Utility.list_by_user_ids(): {str(e)}', 500
+            
+
         
     def read_user(self, data):
         try:
@@ -49,7 +75,7 @@ class User_Utility:
                     return jsonify(message=f'User with email {email} not found', status_code='404'), 404
             elif "user_id" in data and "email" not in data:
                 user_id = data.get('user_id')
-                user = User_Model.query.get(user_id)
+                user = db.session.get(User_Model, user_id)
                 if user:
                     return jsonify(user=user.to_dict(), status_code="200"), 200
                 else:

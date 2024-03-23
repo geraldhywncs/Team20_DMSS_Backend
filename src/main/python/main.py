@@ -9,6 +9,7 @@ from controller.category_controller import Category_Controller
 from controller.recurring_frequency_controller import Recurring_Frequency_Controller
 from controller.icon_controller import Icon_Controller
 from controller.user_controller import User_Controller
+from controller.friends_controller import Friends_Controller
 from utility.recurring_frequency_utility import Recurring_Frequency_Utility
 import schedule
 import threading
@@ -36,6 +37,7 @@ Category_Controller(app)
 Recurring_Frequency_Controller(app)
 Icon_Controller(app)
 User_Controller(app)
+Friends_Controller(app)
 
 # # Define scheduler functions
 # def scheduler_task(flask_app):

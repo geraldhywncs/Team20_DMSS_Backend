@@ -7,9 +7,6 @@ class Groups_Controller:
     def __init__(self, app):
         self.app = app
         self.groups_utility = Groups_Utility()
-        with app.app_context():
-            db.create_all()
-        
             
         # @app.route('/groups/create', methods=['POST'])
         # def create_group():
