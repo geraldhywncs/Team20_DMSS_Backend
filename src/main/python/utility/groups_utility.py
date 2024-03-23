@@ -3,28 +3,40 @@ from config.database_config import db
 from model.groups_model import Groups_Model
 
 class Groups_Utility:
-            
-        # def create_group(self, data):
-        #     try:
-        #         new_group = Groups_Model(name=data['name'])
-        #         db.session.add(new_group)
-        #         db.session.commit()
-        #         return jsonify(message='Group created successfully!')
-        #     except Exception as e:
-        #         return jsonify(message=f'Error creating group: {str(e)}'), 500
+        def create(self, group_name):
+            try:
+                group = Groups_Model(group_name=group_name)
+                db.session.add(group)
+                db.session.commit()
+                return group.to_dict(), 201
+            except Exception as e:
+                db.session.rollback()
+                return f'Error in Groups_Utility.create(): {str(e)}', 500
+
+        def get(self, group_id):
+            try:
+                group = db.session.get(Groups_Model, group_id)
+                if group is not None:
+                    return group.to_dict(), 200
+                else:
+                    return 'Group not found', 404
+            except Exception as e:
+                return f'Error in Groups_Utility.get(): {str(e)}', 500
+
             
         def read_groups(self, data):
             try:
-                user_id = data.get('user_id')
-                if user_id is not None:
-                    groups = Groups_Model.query.filter_by(user_id=user_id).all()
+                group_id = data.get('group_id')
+                if group_id is not None:
+                    groups = db.session.get(Groups_Model, group_id)
                     if groups:
-                        group_list = [{'group_id': group.group_id, 'group_name': group.group_name, 'user_id': group.user_id} for group in groups]
-                        return jsonify(groups=group_list, status_code='200')
+                        return jsonify(groups=groups.to_dict(), status_code='200')
                     else:
-                        return jsonify(message=f'Group with ID {user_id} not found', status_code='404'), 404
+                        return jsonify(message=f'Group with ID {group_id} not found', status_code='404'), 404
                 else:
-                    return jsonify(message=f'User id is not provided', status_code='404'), 404
+                    groups = Groups_Model.query.all()
+                    group_list = [group.to_dict() for group in groups]
+                    return jsonify(groups=group_list, status_code='200')
             except Exception as e:
                 return jsonify(message=f'Error reading groups: {str(e)}', status_code='500'), 500
 

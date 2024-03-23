@@ -16,36 +16,70 @@ import getpass
 
 
 class User_Utility:
-    def create_user(self, user_name, email, password, account_status):
-        user = User_Model(user_name=user_name, email=email, password=password, account_status=account_status)
-        db.session.add(user)
-        db.session.commit()
-        return user.to_dict()
-
-    def get_user(self, user_id):
+    def create(self, user_name, email, password, first_name, last_name):
         try:
-            user = User_Model.query.get(user_id)
-            return jsonify(user_id=user.user_id, user_name=user.user_name, email=user.email, password=user.password, account_status=user.account_status, status_code="200"), 200
+            user = User_Model(user_name=user_name, email=email, password=password, first_name=first_name, last_name=last_name, bio='')
+            db.session.add(user)
+            db.session.commit()
+            return user.to_dict(), 201
         except Exception as e:
-            return jsonify(message=f'Error in get_user(): {str(e)}', status_code=500), 500
+            db.session.rollback()
+            return f'Error in User_Utility.create(): {str(e)}', 500
 
+    def get(self, user_id):
+        try:
+            user = db.session.get(User_Model, user_id)
+            if user is not None:
+                return user.to_dict(), 200
+            else:
+                return 'User not found', 404
+        except Exception as e:
+            return f'Error in User_Utility.get(): {str(e)}', 500
+        
+    def update(self, user_id, first_name, last_name, user_name, bio):
+        try:
+            user = db.session.get(User_Model, user_id)
+            if user is None:
+                return 'User not found', 404
+            else:
+                user.first_name = first_name
+                user.last_name = last_name
+                user.user_name = user_name
+                user.bio = bio
+                db.session.commit()
+            return user.to_dict(), 200
+        except Exception as e:
+            db.session.rollback()
+            return f'Error in User_Utility.update(): {str(e)}', 500
+        
+    def list_by_user_ids(self, user_ids):
+        try:
+            users = User_Model.query.filter(User_Model.user_id.in_(user_ids)).all()
+            users_list = [user.to_dict() for user in users]
+            return users_list, 200
+        except Exception as e:
+            return f'Error in User_Utility.list_by_user_ids(): {str(e)}', 500
+            
+
+        
     def read_user(self, data):
         try:
             if "email" not in data and "user_id" not in data:
                 return jsonify(message='Invalid request. Please provide user id or email.', status_code=400), 400
             elif "email" in data and "user_id" not in data:
-                print("email")
                 email = data.get('email')
                 user = User_Model.query.filter_by(email=email).first()
-                print(user)
                 if user:
-                    return jsonify(user_id=user.user_id, user_name=user.user_name, email=user.email, password=user.password, account_status=user.account_status, status_code="200"), 200
+                    return jsonify(user=user.to_dict(), status_code="200"), 200
+                else:
+                    return jsonify(message=f'User with email {email} not found', status_code='404'), 404
             elif "user_id" in data and "email" not in data:
-                print("user_id")
                 user_id = data.get('user_id')
-                user = User_Model.query.get(user_id)
+                user = db.session.get(User_Model, user_id)
                 if user:
-                    return jsonify(user_id=user.user_id, user_name=user.user_name, email=user.email, password=user.password, account_status=user.account_status, status_code="200"), 200
+                    return jsonify(user=user.to_dict(), status_code="200"), 200
+                else:
+                    return jsonify(message=f'User with ID {user_id} not found', status_code='404'), 404
         except Exception as e:
             return jsonify(message=f'Error reading user: {str(e)}', status_code="500"), 500
     
@@ -67,6 +101,7 @@ class User_Utility:
 
     def decrypt_password(self, password):
         key = self.read_fernet_key()
+        print(key)
         cipher_suite = Fernet(key)
         return cipher_suite.decrypt(password).decode()
     
@@ -86,21 +121,22 @@ class User_Utility:
                 return jsonify(message='Invalid request. Please provide password.', status_code=400), 400
             
             user_response = self.read_user({"email": data.get('email')})
-
             if isinstance(user_response, tuple):
                 user_response, status_code = user_response
             else:
                 status_code = user_response.status_code
 
+
             if status_code == 200:
                 user_response_content = user_response.get_data(as_text=True)
                 user_data = json.loads(user_response_content)
-                user_password = user_data.get("password")
+                user_password = user_data.get("user").get("password")
+                print(user_password)
                 decrypted_password = self.decrypt_password(user_password)
                 print(f"decrypted_password {decrypted_password}")
                 print(f"data.get('email') {data.get('email')}")
                 if decrypted_password == data.get('password'):
-                    user_id = user_data.get("user_id")
+                    user_id = user_data.get("user").get("user_id")
                     return jsonify(user_id=user_id, status_code="200"), 200
                 else:
                     return jsonify(status_code="400"), 400
@@ -125,7 +161,7 @@ class User_Utility:
                 user_response_content = user_response.get_data(as_text=True)
                 user_data = json.loads(user_response_content)
                 new_reset_password = Reset_Password_Model(
-                    user_id = user_data.get("user_id"),
+                    user_id = user_data.get("user").get("user_id"),
                     reset_token = reset_token
                 )
                 db.session.begin_nested()

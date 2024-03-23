@@ -2,6 +2,12 @@ from flask import jsonify, request
 from config.database_config import db
 from model.expenses_model import Expenses_Model
 from model.receipt_model import Receipt_Model
+from model.user_model import User_Model
+from model.category_model import Category_Model
+from model.currencies_model import Currencies_Model
+from model.icon_model import Icon_Model
+from model.groups_model import Groups_Model
+from model.recurring_frequency_model import Recurring_Frequency_Model
 from utility.grouping_utility import Grouping_Utility
 from utility.currency_utility import Currency_Utility
 import json
@@ -73,25 +79,21 @@ class Expenses_Utility:
             if 'groupId' not in data:
                 return jsonify(message='Group ID not specified in the request'), 400
             else:
-                grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['groupId']})
-                grouping_response_content = grouping_response.get_data(as_text=True)
-                grouping_data = json.loads(grouping_response_content).get("grouping", [])
-                
-
-            if 'expenseId' in data and 'amount' not in data:
-                expenses_response = self.read_expenses({"expenses_id": data['expenseId']})
-                expenses_response_content = expenses_response.get_data(as_text=True)
-                expenses_data = json.loads(expenses_response_content).get("expenses")
-                expenses_per_ppl = Decimal(expenses_data) / Decimal(len(grouping_data))
-                expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
-            elif 'expenseId' not in data and 'amount' in data:
+                group = Groups_Model.query.filter_by(group_id=data['groupId']).all()
+                if not group:
+                    return jsonify(message='Group Id is not valid.'), 400
+                else:
+                    grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['groupId']})
+                    grouping_response_content = grouping_response.get_data(as_text=True)
+                    grouping_data = json.loads(grouping_response_content).get("grouping", [])
+            
+            
+            if 'amount' in data:
                 amount = data['amount']
                 expenses_per_ppl = Decimal(amount) / Decimal(len(grouping_data))
                 expenses_per_ppl = expenses_per_ppl.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
-            elif 'expenseId' in data and 'amount' in data:
-                return jsonify(message='Which do you have to count at? Expense ID or Amount', status_code='400'), 400
             else:
-                return jsonify(message='Expense ID and Amount are not specified in the request',status_code='400'), 400
+                return jsonify(message='Amount are not specified in the request',status_code='400'), 400
 
             return jsonify(expenses_per_ppl=expenses_per_ppl, status_code='200')
 
@@ -104,21 +106,43 @@ class Expenses_Utility:
         try:
             if "user_id" not in data:
                 return jsonify(message='Invalid request. Please provide user id.', status_code=400), 400
+            else:
+                user = User_Model.query.filter_by(user_id=data['user_id']).all()
+                if not user:
+                    return jsonify(message='Invalid request. Please provide valid user id.', status_code=400), 400
             if "title" not in data:
                 return jsonify(message='Invalid request. Please provide title.', status_code=400), 400
             if "description" not in data:
                 data['description'] = None
             if "cat_id" not in data:
                 return jsonify(message='Invalid request. Please provide category id.', status_code=400), 400
+            else:
+                category = Category_Model.query.filter_by(user_id=data['user_id'],category_id=data['cat_id']).all()
+                if not category:
+                    return jsonify(message='Invalid request. Please provide valid category id.', status_code=400), 400
             if "share_amount" not in data:
-                data['share_amount'] = None
+                return jsonify(message='Invalid request. Please provide share amount.', status_code=400), 400
             if "from_currency" not in data:
                 return jsonify(message='Invalid request. Please provide from Currency.', status_code=400), 400
+            else:
+                currency = Currencies_Model.query.filter_by(currency_id=data['from_currency']).all()
+                if not currency:
+                    return jsonify(message='Invalid request. Please provide valid currency id.', status_code=400), 400
             if "icon_id" not in data:
                 return jsonify(message='Invalid request. Please provide icon id.', status_code=400), 400
-            if "recur_id" not in data:
-                return jsonify(message='Invalid request. Please provide recurring frequency id.', status_code=400), 400
-
+            else:
+                icon = Icon_Model.query.filter_by(icon_id=data['icon_id']).all()
+                if not icon:
+                    return jsonify(message='Invalid request. Please provide valid icon id.', status_code=400), 400
+            if "recur_id" in data:
+                recurring_frequency = Recurring_Frequency_Model.query.filter_by(recurring_id=data['recur_id']).all()
+                if not recurring_frequency:
+                    return jsonify(message='Invalid request. Please provide valid recurring frequency id.', status_code=400), 400
+            if "group_id" in data:
+                groups = Groups_Model.query.filter_by(group_id=data['group_id']).all()
+                if not groups:
+                    return jsonify(message='Invalid request. Please provide valid group id.', status_code=400), 400
+                    
             data['group_id'] = None if "group_id" not in data or data['group_id'] == "" else data['group_id']
             data['recur_id'] = None if "recur_id" not in data or data['recur_id'] == "" else data['recur_id']
 

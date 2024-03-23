@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from config.database_config import db
 from model.currencies_model import Currencies_Model
+from model.expenses_model import Expenses_Model
 from model.currency_conversion_model import Currency_Conversion_Model
 import json
 import base64
@@ -34,7 +35,7 @@ class Currency_Utility:
         
     def read_all_currencies(self, data=None):
         try:
-            if data is None:
+            if not bool(data):
                 currencies = Currencies_Model.query.all()
                 if currencies:
                     currency_list = [{'currency_id': currency.currency_id, 'code': currency.code, 'name': currency.name} for currency in currencies]
@@ -43,7 +44,7 @@ class Currency_Utility:
                     return jsonify(message=f'Currencies are not found', status_code = '404'), 404
             else:
                 currencies_id = data.get('currencyId')
-                currencies = Currencies_Model.query.get(currencies_id)
+                currencies = db.session.get(Currencies_Model, currencies_id)
                 if currencies:
                     return jsonify(currency_id=currencies.currency_id, code=currencies.code, name=currencies.name, status_code = '200')
         except Exception as e:
@@ -53,10 +54,22 @@ class Currency_Utility:
         try:
             if "expense_id" not in data:
                 return jsonify(message='Invalid request. Please provide expense id.', status_code = 400), 400
+            else:
+                expenses = Expenses_Model.query.filter_by(expenses_id=data['expense_id']).all()
+                if not expenses:
+                    return jsonify(message='Invalid request. Please provide valid expenses id.', status_code=400), 400
             if "original_currency" not in data:
                 return jsonify(message='Invalid request. Please provide original currency.', status_code = 400), 400
+            else:
+                currency = Currencies_Model.query.filter_by(currency_id=data['original_currency']).all()
+                if not currency:
+                    return jsonify(message='Invalid request. Please provide valid orginal currency id.', status_code=400), 400
             if "convert_currency" not in data:
                 return jsonify(message='Invalid request. Please provide convert currency.', status_code = 400), 400
+            else:
+                currency = Currencies_Model.query.filter_by(currency_id=data['convert_currency']).all()
+                if not currency:
+                    return jsonify(message='Invalid request. Please provide valid convert currency id.', status_code=400), 400
             if "exchange_rate" not in data:
                 return jsonify(message='Invalid request. Please provide exchange rate.', status_code = 400), 400
             if "converted_amount" not in data:

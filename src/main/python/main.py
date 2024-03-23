@@ -9,6 +9,7 @@ from controller.category_controller import Category_Controller
 from controller.recurring_frequency_controller import Recurring_Frequency_Controller
 from controller.icon_controller import Icon_Controller
 from controller.user_controller import User_Controller
+from controller.friends_controller import Friends_Controller
 from utility.recurring_frequency_utility import Recurring_Frequency_Utility
 import schedule
 import threading
@@ -36,29 +37,28 @@ Category_Controller(app)
 Recurring_Frequency_Controller(app)
 Icon_Controller(app)
 User_Controller(app)
+Friends_Controller(app)
 
-# Define scheduler functions
-def scheduler_task(flask_app):
-    try:
-        with flask_app.app_context():
-            Recurring_Frequency_Utility().recurring_scheduler()
-    except Exception as e:
-        print(f'Error reading recurring frequencies: {str(e)}')
+# # Define scheduler functions
+# def scheduler_task(flask_app):
+#     try:
+#         with flask_app.app_context():
+#             Recurring_Frequency_Utility().recurring_scheduler()
+#     except Exception as e:
+#         print(f'Error reading recurring frequencies: {str(e)}')
 
-def scheduler_thread(flask_app):
-    # schedule.every(1).minutes.do(scheduler_task, flask_app)
-    schedule.every().day.at("00:00").do(scheduler_task, flask_app)
-    while True:
-        schedule.run_pending()  # Check for pending tasks
-        time.sleep(1)  # Sleep for a short duration
+# def scheduler_thread(flask_app):
+#     # schedule.every(1).minutes.do(scheduler_task, flask_app)
+#     schedule.every().day.at("00:00").do(scheduler_task, flask_app)
+#     while True:
+#         schedule.run_pending()  # Check for pending tasks
+#         time.sleep(1)  # Sleep for a short duration
 
 # Only if running main.py then run below code
 if __name__ == '__main__':
-    # scheduler = threading.Thread(target=scheduler_thread)
-    # scheduler.start()
 
-    scheduler = threading.Thread(target=scheduler_thread, args=(app,))
-    scheduler.start()
+    # scheduler = threading.Thread(target=scheduler_thread, args=(app,))
+    # scheduler.start()
 
     # start_recurring_frequency_batch_job()
 

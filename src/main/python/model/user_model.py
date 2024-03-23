@@ -6,10 +6,9 @@ class User_Model(db.Model):
     user_name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     password = db.Column(db.String(255))
-    account_status = db.Column(db.String(255))
-    # first_name = db.Column(db.String(255))
-    # last_name = db.Column(db.String(255))
-    # bio = db.Column(db.string(255))
+    first_name = db.Column(db.String(255))
+    last_name = db.Column(db.String(255))
+    bio = db.Column(db.String(255))
 
     __tablename__ = 'users'
 
@@ -19,5 +18,7 @@ class User_Model(db.Model):
             'user_name': self.user_name,
             'email': self.email,
             'password': self.password,
-            'account_status': self.account_status
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'bio': self.bio,
         }
