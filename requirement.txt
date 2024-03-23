@@ -10,4 +10,5 @@ forex_python
 cryptography
 pytest
 schedule
+boto3
 
