@@ -7,6 +7,8 @@ sys.path.append(parent_dir)
 from main import app
 from flask import json
 import pytest
+from config.database_config import db
+from model.currencies_model import Currencies_Model
 
 
 @pytest.fixture
@@ -14,7 +16,58 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_read_all_currencies_successed(client):
+@pytest.fixture(scope='function')
+def init_db():
+    """Initialize a clean database before each test."""
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        yield db
+        db.session.rollback()
+
+@pytest.fixture(scope="function")
+def setup():
+    currency_data = [
+        ('MXN', 'Mexican Peso'),
+        ('SGD', 'Singapore Dollar'),
+        ('HKD', 'Hong Kong Dollar'),
+        ('KRW', 'South Korean Won'),
+        ('TRY', 'Turkish Lira'),
+        ('IDR', 'Indonesian Rupiah'),
+        ('PHP', 'Philippine Peso'),
+        ('THB', 'Thai Baht'),
+        ('MYR', 'Malaysian Ringgit'),
+        ('NOK', 'Norwegian Krone'),
+        ('DKK', 'Danish Krone'),
+        ('PLN', 'Polish Złoty'),
+        ('HUF', 'Hungarian Forint'),
+        ('CZK', 'Czech Koruna'),
+        ('USD', 'United States Dollar'),
+        ('EUR', 'Euro'),
+        ('GBP', 'British Pound Sterling'),
+        ('JPY', 'Japanese Yen'),
+        ('AUD', 'Australian Dollar'),
+        ('CAD', 'Canadian Dollar'),
+        ('CHF', 'Swiss Franc'),
+        ('CNY', 'Chinese Yuan'),
+        ('SEK', 'Swedish Krona'),
+        ('NZD', 'New Zealand Dollar'),
+        ('INR', 'Indian Rupee'),
+        ('BRL', 'Brazilian Real'),
+        ('ZAR', 'South African Rand')
+    ]
+
+    for code, name in currency_data:
+        currency_model = Currencies_Model(
+            code=code,
+            name=name
+        )
+        db.session.add(currency_model)
+
+    db.session.commit()
+    yield currency_model
+
+def test_read_all_currencies_successed(client,init_db,setup):
     currency_data = {}
 
     json_data = json.dumps(currency_data)

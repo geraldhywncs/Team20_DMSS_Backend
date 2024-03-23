@@ -172,10 +172,10 @@ class User_Utility:
                 print(f"Reset link: {reset_link}")
                 self.send_reset_password_email(reset_link, email)
                 return jsonify(message='Password reset email sent successfully.', status_code=200)
-
             return jsonify(message='Email not found.', status_code=404), 404
 
         except Exception as e:
+            db.session.rollback()
             return jsonify(message=f'Error: {str(e)}', status_code=500), 500
         
     def send_reset_password_email(self, reset_link, email):

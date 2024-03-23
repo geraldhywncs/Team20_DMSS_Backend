@@ -90,4 +90,5 @@ class Currency_Utility:
             return jsonify(message='Currency Converter created successfully!', status_code = 200), 200
 
         except Exception as e:
+            db.session.rollback()
             return jsonify(message=f'Error creating currency converter: {str(e)}', status_code = 500), 500
