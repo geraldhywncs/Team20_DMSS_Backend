@@ -209,6 +209,7 @@ class Expenses_Utility:
                         {"exchange_rate": json.loads(convert_currency_response_content).get("exchange_rate"),
                          "converted_amount": json.loads(convert_currency_response_content).get("converted_amount")})
             else:
+                db.session.rollback()
                 return jsonify(message='No currencies inside database', status_code="400"), 400
 
             if data['group_id'] == None:
