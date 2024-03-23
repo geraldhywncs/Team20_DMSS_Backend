@@ -19,6 +19,9 @@ from botocore.exceptions import ClientError
 
 
 class User_Utility:
+    def __init__(self):
+        self.ses_client = boto3.client('ses', region_name='ap-southeast-1')
+
     def create(self, user_name, email, password, first_name, last_name):
         try:
             user = User_Model(user_name=user_name, email=email, password=password, first_name=first_name, last_name=last_name, bio='')
