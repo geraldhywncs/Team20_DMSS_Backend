@@ -65,7 +65,14 @@ class User_Utility:
             return users_list, 200
         except Exception as e:
             return f'Error in User_Utility.list_by_user_ids(): {str(e)}', 500
-            
+
+    def list(self):
+        try:
+            users = User_Model.query.all()
+            users_list = [user.to_dict() for user in users]
+            return users_list, 200
+        except Exception as e:
+            return f'Error in User_Utility.list(): {str(e)}', 500
 
         
     def read_user(self, data):

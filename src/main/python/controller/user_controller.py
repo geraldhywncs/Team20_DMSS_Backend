@@ -67,6 +67,15 @@ class User_Controller:
                 return jsonify(message=user), user_status_code
             
             return jsonify(user=user), user_status_code
+        
+        @app.route('/users', methods=['GET'])
+        def get_users():
+            user_db = User_Utility()
+            users, users_status_code = user_db.list()
+            if not isinstance(users, list):
+                return jsonify(message=users), users_status_code
+            
+            return jsonify(users=users), users_status_code
 
 
         @app.route('/user/readUser', methods=['POST'])
