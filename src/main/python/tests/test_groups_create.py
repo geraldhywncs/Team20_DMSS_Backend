@@ -30,7 +30,6 @@ def init_db():
 @pytest.fixture(scope="function")
 def setup():
     user_db = User_Utility()
-    friends_db = Friends_Utility()
     user1, _ = user_db.create(
         user_name="user1", 
         email="user1@example.com", 
@@ -52,27 +51,23 @@ def setup():
         first_name="user", 
         last_name="3"
     )
-    friends_db.create(user_id=user1.get('user_id'), friend_id=user2.get('user_id'))
-    friends_db.create(user_id=user2.get('user_id'), friend_id=user1.get('user_id'))
-    friends_db.create(user_id=user2.get('user_id'), friend_id=user3.get('user_id'))
-    friends_db.create(user_id=user3.get('user_id'), friend_id=user2.get('user_id'))
-    yield (user1, user2)
+    yield (user1, user2, user3)
         
-def test_delete_friends_success(client, init_db, setup):
-    user1, user2 = setup
+def test_create_group_success(client, init_db, setup):
+    user1, user2, user3 = setup
     headers = {'Content-Type': 'application/json'}
-    friends_db = Friends_Utility()
 
-    friendList1, _ = friends_db.list_by_user_id(user_id=user1.get('user_id'))
-    assert len(friendList1) == 1
-    friendList2, _ = friends_db.list_by_user_id(user_id=user2.get('user_id'))
-    assert len(friendList2) == 2
-
-    json_data = json.dumps({'friend_id': user2.get('user_id')})
-    response = client.delete('/friends/' + str(user1.get('user_id')), data=json_data, headers=headers)
+    json_data = json.dumps({
+        'group_name': 'my group name', 
+        'group_member_ids': [user1.get('user_id'), user2.get('user_id'), user3.get('user_id')]
+        })
+    response = client.post('/groups', data=json_data, headers=headers)
     assert response.status_code == 200
 
-    friendList1, _ = friends_db.list_by_user_id(user_id=user1.get('user_id'))
-    assert len(friendList1) == 0
-    friendList2, _ = friends_db.list_by_user_id(user_id=user2.get('user_id'))
-    assert len(friendList2) == 2
+    data = json.loads(response.data)
+
+    group = data['group']
+    assert group.get('group_name') == 'my group name'
+    
+    group_member_ids = data['group_member_ids']
+    assert len(group_member_ids) == 3
