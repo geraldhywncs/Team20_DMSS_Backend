@@ -69,5 +69,5 @@ def test_create_group_success(client, init_db, setup):
     group = data['group']
     assert group.get('group_name') == 'my group name'
     
-    group_member_ids = data['group_member_ids']
-    assert len(group_member_ids) == 3
+    group_members = data['group_members']
+    assert len(group_members) == 3
