@@ -17,13 +17,14 @@ class Friends_Utility:
         
     def delete(self, user_id, friend_id):
         try:
-            friend = Friends_Model.query.filter_by(user_id=user_id, friend_id=friend_id).first()
-            if friend is not None:
-                db.session.delete(friend)
-                db.session.commit()
-                return 'Friend successfully deleted', 200
-            else: 
+            friendship = Friends_Model.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+            if friendship is None:
                 return 'Friend not found', 404
+            friendships = Friends_Model.query.filter_by(user_id=user_id, friend_id=friend_id).all()
+            for friendship in friendships:
+                db.session.delete(friendship)
+            db.session.commit()
+            return friendship.to_dict(), 200
         except Exception as e:
             db.session.rollback()
             return f'Error in Friends_Utility.delete(): {str(e)}', 500
@@ -31,7 +32,6 @@ class Friends_Utility:
     def list_by_user_id(self, user_id):
         try:
             friendship = Friends_Model.query.filter_by(user_id=user_id).all()
-            print(friendship)
             return [f.to_dict() for f in friendship], 200
         except Exception as e:
             return f'Error in Friends_Utility.list_by_user_id(): {str(e)}', 500

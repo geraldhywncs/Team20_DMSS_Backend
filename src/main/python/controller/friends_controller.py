@@ -40,4 +40,5 @@ class Friends_Controller:
             friend, friends_status_code = friends_db.delete(user_id=userID, friend_id=data.get('friend_id'))
             if friends_status_code != 200:
                 return jsonify(message=friend), friends_status_code
-            return jsonify(message="Successfully removed friend"), 200
+
+            return jsonify(friend=friend), 200

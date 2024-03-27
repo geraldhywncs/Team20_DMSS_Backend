@@ -1,5 +1,5 @@
 from config.database_config import db
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from model.user_model import User_Model
 
@@ -14,6 +14,11 @@ class Friends_Model(db.Model):
     # Define a relationship to the User model
     user = relationship(User_Model, foreign_keys=[user_id])
     friend = relationship(User_Model, foreign_keys=[friend_id])
+
+    # Add a unique constraint
+    __table_args__ = (
+        UniqueConstraint('user_id', 'friend_id', name='unique_friendship'),
+    )
 
     def to_dict(self):
         return {
