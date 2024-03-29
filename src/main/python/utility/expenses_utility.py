@@ -42,6 +42,25 @@ class Expenses_Utility:
         except Exception as e:
             return jsonify(message=f'Error reading expenses: {str(e)}'), 500
 
+    def read_receipts_by_user(self, data):
+        try:
+            user_id = data.get('user_id')
+            if user_id is None:
+                return jsonify(message='User ID is required'), 400
+
+            receipts = Receipt_Model.query.filter_by(created_user_id=user_id).all()
+            if receipts:
+                receipt_list = [{'receipt_id': receipt.receipt_id, 'title': receipt.title, 'description': receipt.description,
+                                'created_datetime': receipt.created_datetime, 'group_id': receipt.group_id,
+                                'recur_id': receipt.recur_id, 'cat_id': receipt.cat_id, 'icon_id': receipt.icon_id,
+                                'updated_recur_datetime': receipt.updated_recur_datetime} for receipt in receipts]
+                return jsonify(receipts=receipt_list)
+            else:
+                return jsonify(message=f'No receipts found for user with ID {user_id}'), 404
+                    
+        except Exception as e:
+            return jsonify(message=f'Error reading receipts: {str(e)}'), 500
+
 
     def update_expense(self, data):
         try:
