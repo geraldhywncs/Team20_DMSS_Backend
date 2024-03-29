@@ -58,11 +58,8 @@ def test_create_friends_success(client, init_db, setup):
     data = json.loads(response.data)
 
     friend = data['friend']
-    assert friend.get('user_name') == 'user2'
-    assert friend.get('email') == 'user2@example.com'
-    assert friend.get('password') == 'password'
-    assert friend.get('first_name') == 'user'
-    assert friend.get('last_name') == '2'
+    assert friend.get('user_id') == user1.get('user_id')
+    assert friend.get('friend_id') == user2.get('user_id')
 
     friendList1, _ = friends_db.list_by_user_id(user_id=user1.get('user_id'))
     assert len(friendList1) == 1
