@@ -1,9 +1,9 @@
-import cv2
-import pytesseract
-import numpy
+# import cv2
+# import pytesseract
+# import numpy
 
-from skimage.filters import threshold_local
-from PIL import Image
+# from skimage.filters import threshold_local
+# from PIL import Image
 from flask import Flask, request, jsonify
 
 class OCR_Utility:

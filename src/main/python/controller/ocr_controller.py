@@ -1,7 +1,7 @@
-import cv2
-import pytesseract
-import numpy as np
-from skimage.filters import threshold_local
+# import cv2
+# import pytesseract
+# import numpy as np
+# from skimage.filters import threshold_local
 from flask import request, jsonify
 from utility.ocr_utility import OCR_Utility
 
