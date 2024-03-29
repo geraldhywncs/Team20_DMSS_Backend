@@ -100,3 +100,8 @@ class User_Controller:
         def change_password():
             data = request.get_json()
             return self.user_utility.change_password(data)
+        
+        @app.route('/user/createUser', methods=['POST'])
+        def create_user():
+            data = request.get_json()
+            return self.user_utility.create(data)
