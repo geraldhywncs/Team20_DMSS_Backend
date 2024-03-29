@@ -50,10 +50,26 @@ class Expenses_Utility:
 
             receipts = Receipt_Model.query.filter_by(created_user_id=user_id).all()
             if receipts:
-                receipt_list = [{'receipt_id': receipt.receipt_id, 'title': receipt.title, 'description': receipt.description,
-                                'created_datetime': receipt.created_datetime, 'group_id': receipt.group_id,
-                                'recur_id': receipt.recur_id, 'cat_id': receipt.cat_id, 'icon_id': receipt.icon_id,
-                                'updated_recur_datetime': receipt.updated_recur_datetime} for receipt in receipts]
+                receipt_list = []
+                for receipt in receipts:
+                    expenses = Expenses_Model.query.filter_by(user_id=user_id, receipt_id=receipt.receipt_id).all()
+                    expense_data = [{
+                        'expense_id': expense.expenses_id,
+                        'share_amount': expense.share_amount
+                    } for expense in expenses]
+                    receipt_data = {
+                        'receipt_id': receipt.receipt_id,
+                        'title': receipt.title,
+                        'description': receipt.description,
+                        'created_datetime': receipt.created_datetime,
+                        'group_id': receipt.group_id,
+                        'recur_id': receipt.recur_id,
+                        'cat_id': receipt.cat_id,
+                        'icon_id': receipt.icon_id,
+                        'updated_recur_datetime': receipt.updated_recur_datetime,
+                        'expenses': expense_data  
+                    }
+                    receipt_list.append(receipt_data)
                 return jsonify(receipts=receipt_list)
             else:
                 return jsonify(message=f'No receipts found for user with ID {user_id}'), 404
