@@ -46,7 +46,7 @@ def setup():
     )
     yield (user1, user2)
         
-def test_get_friends_success(client, init_db, setup):
+def test_create_friends_success(client, init_db, setup):
     user1, user2 = setup
     headers = {'Content-Type': 'application/json'}
     friends_db = Friends_Utility()
