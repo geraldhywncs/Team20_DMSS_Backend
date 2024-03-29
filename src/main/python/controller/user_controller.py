@@ -43,10 +43,13 @@ class User_Controller:
                     member, member_status_code = user_db.get(user_id=userID)
                     if not isinstance(member, dict):
                         return jsonify(message=member), member_status_code
-                    members.append(member)
+                    members.append(member.get('user_name'))
 
-                group_name = groups_db.get(group_id=id)
-                groups.append({'members': members, 'name': group_name})
+                group, group_status_code = groups_db.get(group_id=id)
+                if not isinstance(group, dict):
+                    return jsonify(message=group), group_status_code
+                
+                groups.append({'group_name': group.get('group_name'), 'members': members })
 
             return jsonify(user=user, friends=friends, groups=groups), 200
         
