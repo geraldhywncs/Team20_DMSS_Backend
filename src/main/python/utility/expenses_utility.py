@@ -42,6 +42,7 @@ class Expenses_Utility:
         except Exception as e:
             return jsonify(message=f'Error reading expenses: {str(e)}'), 500
 
+   
     def read_receipts_by_user(self, data):
         try:
             user_id = data.get('user_id')
@@ -57,6 +58,13 @@ class Expenses_Utility:
                         'expense_id': expense.expenses_id,
                         'share_amount': expense.share_amount
                     } for expense in expenses]
+
+                    category = Category_Model.query.filter_by(user_id=user_id, category_id=receipt.cat_id).first()
+                    category_name = category.category_name if category else None
+
+                    recurring = Recurring_Frequency_Model.query.filter_by(recurring_id=receipt.recur_id).first()
+                    recurring_name = recurring.recur_name if recurring else None
+
                     receipt_data = {
                         'receipt_id': receipt.receipt_id,
                         'title': receipt.title,
@@ -67,6 +75,8 @@ class Expenses_Utility:
                         'cat_id': receipt.cat_id,
                         'icon_id': receipt.icon_id,
                         'updated_recur_datetime': receipt.updated_recur_datetime,
+                        'category_name': category_name,
+                        'recurring_name': recurring_name,
                         'expenses': expense_data  
                     }
                     receipt_list.append(receipt_data)

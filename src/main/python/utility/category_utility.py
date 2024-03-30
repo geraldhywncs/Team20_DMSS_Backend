@@ -42,7 +42,9 @@ class Category_Utility:
         db.session.add(new_category)
         db.session.commit()
 
-        return jsonify({'message': 'Category added successfully','category_name': category_name, 'status_code': 200}), 200
+        added_category = Category_Model.query.filter_by(category_name=category_name, user_id=user_id).first()
+
+        return jsonify({'message': 'Category added successfully', 'category_id': added_category.category_id, 'category_name': added_category.category_name, 'user_id': added_category.user_id, 'status_code': 200}), 200
 
     def delete_category(self, data):
         category_id = data.get('category_id')
