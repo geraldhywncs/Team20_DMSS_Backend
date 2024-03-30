@@ -97,7 +97,7 @@ def test_read_category_successed(client, init_db, setup):
     ]
     assert status_code == 200
 
-def test_read_category_without_user_id_failed(client):
+def test_read_category_without_user_id_success(client):
     data = {
     }
 
@@ -114,8 +114,39 @@ def test_read_category_without_user_id_failed(client):
 
     data = json.loads(response.data)
 
-    assert status_code == 404
-    assert data["message"] == "User id is not provided"
+    assert status_code == 200
+    assert data["categories"] == [
+        {
+            "category_id": 1,
+            "category_name": "Food",
+            "user_id": 1
+        },
+        {
+            "category_id": 2,
+            "category_name": "Travelling",
+            "user_id": 1
+        },
+        {
+            "category_id": 3,
+            "category_name": "Rental",
+            "user_id": 1
+        },
+        {
+            "category_id": 4,
+            "category_name": "Food",
+            "user_id": 2
+        },
+        {
+            "category_id": 5,
+            "category_name": "Travelling",
+            "user_id": 2
+        },
+        {
+            "category_id": 6,
+            "category_name": "Rental",
+            "user_id": 2
+        }
+    ]
 
 def test_read_category_invalid_user_id_failed(client):
     data = {

@@ -138,45 +138,61 @@ class Expenses_Utility:
    
         
     def create_expense(self, data):
+        print(data)
         try:
             if "user_id" not in data:
+                print("user_id")
                 return jsonify(message='Invalid request. Please provide user id.', status_code=400), 400
             else:
+                print("user_id")
                 user = User_Model.query.filter_by(user_id=data['user_id']).all()
                 if not user:
                     return jsonify(message='Invalid request. Please provide valid user id.', status_code=400), 400
             if "title" not in data:
+                print("title")
                 return jsonify(message='Invalid request. Please provide title.', status_code=400), 400
             if "description" not in data:
                 data['description'] = None
             if "cat_id" not in data:
+                print("cat_id")
                 return jsonify(message='Invalid request. Please provide category id.', status_code=400), 400
             else:
+                print("cat_id")
                 category = Category_Model.query.filter_by(user_id=data['user_id'],category_id=data['cat_id']).all()
                 if not category:
                     return jsonify(message='Invalid request. Please provide valid category id.', status_code=400), 400
             if "share_amount" not in data:
+                print("share_amount")
                 return jsonify(message='Invalid request. Please provide share amount.', status_code=400), 400
             if "from_currency" not in data:
+                print("from_currency")
                 return jsonify(message='Invalid request. Please provide from Currency.', status_code=400), 400
             else:
+                print("from_currency")
                 currency = Currencies_Model.query.filter_by(currency_id=data['from_currency']).all()
                 if not currency:
                     return jsonify(message='Invalid request. Please provide valid currency id.', status_code=400), 400
             if "icon_id" not in data:
+                print("icon_id")
                 return jsonify(message='Invalid request. Please provide icon id.', status_code=400), 400
             else:
+                print("icon_id")
                 icon = Icon_Model.query.filter_by(icon_id=data['icon_id']).all()
                 if not icon:
                     return jsonify(message='Invalid request. Please provide valid icon id.', status_code=400), 400
             if "recur_id" in data:
-                recurring_frequency = Recurring_Frequency_Model.query.filter_by(recurring_id=data['recur_id']).all()
-                if not recurring_frequency:
-                    return jsonify(message='Invalid request. Please provide valid recurring frequency id.', status_code=400), 400
+                print(f"recur_id = {data['recur_id']}")
+                if data['recur_id'] is not None and data['recur_id'] !="":
+                    print("recur_id")
+                    recurring_frequency = Recurring_Frequency_Model.query.filter_by(recurring_id=data['recur_id']).all()
+                    if not recurring_frequency:
+                        return jsonify(message='Invalid request. Please provide valid recurring frequency id.', status_code=400), 400
             if "group_id" in data:
-                groups = Groups_Model.query.filter_by(group_id=data['group_id']).all()
-                if not groups:
-                    return jsonify(message='Invalid request. Please provide valid group id.', status_code=400), 400
+                if data['group_id'] is not None and data['group_id'] !="":
+                    print("group_id")
+                    groups = Groups_Model.query.filter_by(group_id=data['group_id']).all()
+                    if not groups:
+                        return jsonify(message='Invalid request. Please provide valid group id.', status_code=400), 400
                     
             data['group_id'] = None if "group_id" not in data or data['group_id'] == "" else data['group_id']
             data['recur_id'] = None if "recur_id" not in data or data['recur_id'] == "" else data['recur_id']

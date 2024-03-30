@@ -31,6 +31,7 @@ class Groups_Controller:
                 members = []
 
                 for id in member_ids:
+                    print(id)
                     user, user_status_code = user_db.get(user_id=id)
                     if not isinstance(user, dict):
                         return jsonify(message=user), user_status_code

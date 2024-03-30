@@ -104,4 +104,18 @@ class User_Controller:
         @app.route('/user/createUser', methods=['POST'])
         def create_user():
             data = request.get_json()
-            return self.user_utility.create(data)
+            user_name = data.get('user_name')
+            email = data.get('email')
+            password = data.get('password')
+            first_name = data.get('first_name')
+            last_name = data.get('last_name')
+            user, user_status_code = self.user_utility.create(
+                user_name,
+                email,
+                password,
+                first_name,
+                last_name,
+            )
+            if not isinstance(user, dict):
+                return jsonify(message=user), user_status_code
+            return jsonify(user=user), 200
