@@ -18,8 +18,12 @@ class Expenses_Controller:
         def get_expenses():
             data = request.get_json()
             return self.expenses_utility.read_expenses(data)
-                
-
+        
+        @app.route('/expenses/read_receipts_by_user', methods=['POST'])
+        def read_receipts_by_user():
+            data = request.json
+            return self.expenses_utility.read_receipts_by_user(data)
+        
         @app.route('/expenses/update', methods=['POST'])
         def update_expense():
             data = request.get_json()
