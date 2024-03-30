@@ -151,55 +151,42 @@ class Expenses_Utility:
         print(data)
         try:
             if "user_id" not in data:
-                print("user_id")
                 return jsonify(message='Invalid request. Please provide user id.', status_code=400), 400
             else:
-                print("user_id")
                 user = User_Model.query.filter_by(user_id=data['user_id']).all()
                 if not user:
                     return jsonify(message='Invalid request. Please provide valid user id.', status_code=400), 400
             if "title" not in data:
-                print("title")
                 return jsonify(message='Invalid request. Please provide title.', status_code=400), 400
             if "description" not in data:
                 data['description'] = None
             if "cat_id" not in data:
-                print("cat_id")
                 return jsonify(message='Invalid request. Please provide category id.', status_code=400), 400
             else:
-                print("cat_id")
                 category = Category_Model.query.filter_by(user_id=data['user_id'],category_id=data['cat_id']).all()
                 if not category:
                     return jsonify(message='Invalid request. Please provide valid category id.', status_code=400), 400
             if "share_amount" not in data:
-                print("share_amount")
                 return jsonify(message='Invalid request. Please provide share amount.', status_code=400), 400
             if "from_currency" not in data:
-                print("from_currency")
                 return jsonify(message='Invalid request. Please provide from Currency.', status_code=400), 400
             else:
-                print("from_currency")
                 currency = Currencies_Model.query.filter_by(currency_id=data['from_currency']).all()
                 if not currency:
                     return jsonify(message='Invalid request. Please provide valid currency id.', status_code=400), 400
             if "icon_id" not in data:
-                print("icon_id")
                 return jsonify(message='Invalid request. Please provide icon id.', status_code=400), 400
             else:
-                print("icon_id")
                 icon = Icon_Model.query.filter_by(icon_id=data['icon_id']).all()
                 if not icon:
                     return jsonify(message='Invalid request. Please provide valid icon id.', status_code=400), 400
             if "recur_id" in data:
-                print(f"recur_id = {data['recur_id']}")
                 if data['recur_id'] is not None and data['recur_id'] !="":
-                    print("recur_id")
                     recurring_frequency = Recurring_Frequency_Model.query.filter_by(recurring_id=data['recur_id']).all()
                     if not recurring_frequency:
                         return jsonify(message='Invalid request. Please provide valid recurring frequency id.', status_code=400), 400
             if "group_id" in data:
                 if data['group_id'] is not None and data['group_id'] !="":
-                    print("group_id")
                     groups = Groups_Model.query.filter_by(group_id=data['group_id']).all()
                     if not groups:
                         return jsonify(message='Invalid request. Please provide valid group id.', status_code=400), 400
@@ -231,7 +218,7 @@ class Expenses_Utility:
             if status_code != 200:
                 currency_response_default_currency_content = currency_response_default_currency.get_data(as_text=True)
                 db.session.rollback()
-                print("convert_currency_response_content (status code 500):", currency_response_default_currency_content)
+                #print("convert_currency_response_content (status code 500):", currency_response_default_currency_content)
                 return jsonify(message=currency_response_default_currency_content), status_code
 
             currency_response_content = currency_response_default_currency.get_data(as_text=True)
@@ -242,8 +229,8 @@ class Expenses_Utility:
                 index_of_currency = currency_ids.index(int(data['from_currency']))
                 from_currency = codes.pop(index_of_currency)
                 from_currency_id = currency_ids.pop(index_of_currency)
-                print(codes)
-                print(currency_ids)
+                #print(codes)
+                #print(currency_ids)
                 countj = 0
 
                 exchange_rates_n_coverted_amount = []
@@ -260,11 +247,11 @@ class Expenses_Utility:
                     if status_code != 200:
                         convert_currency_response_content = convert_currency_response.get_data(as_text=True)
                         db.session.rollback()
-                        print("convert_currency_response_content (status code 500/400):", convert_currency_response_content)
+                        #print("convert_currency_response_content (status code 500/400):", convert_currency_response_content)
                         return jsonify(message=convert_currency_response_content), status_code
 
                     convert_currency_response_content = convert_currency_response.get_data(as_text=True)
-                    print("convert_currency_response_content:", convert_currency_response_content)
+                    #print("convert_currency_response_content:", convert_currency_response_content)
 
                     exchange_rates_n_coverted_amount.append(
                         {"exchange_rate": json.loads(convert_currency_response_content).get("exchange_rate"),
@@ -296,8 +283,8 @@ class Expenses_Utility:
                 countj = 0
                 for j in codes:
                     # print("countj:", countj)
-                    print("j:", j)
-                    print("from_currency:", from_currency)
+                    #print("j:", j)
+                    #print("from_currency:", from_currency)
                     #print("currency_ids:", currency_ids)
 
                     convert_currency_reponse = self.currency_utility.create_currency_converter({
@@ -316,7 +303,7 @@ class Expenses_Utility:
                     if status_code != 200:
                         convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
                         db.session.rollback()
-                        print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
+                        #print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
                         return jsonify(message=convert_currency_reponse_content), status_code
 
                     countj += 1
@@ -324,7 +311,8 @@ class Expenses_Utility:
                 grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['group_id']})
                 grouping_response_content = grouping_response.get_data(as_text=True)
                 grouping_data = json.loads(grouping_response_content).get("grouping", [])
-                grouping_ids = [group['id'] for group in grouping_data]
+                print(grouping_data)
+                grouping_ids = [group['user_id'] for group in grouping_data]
 
                 for grouping_id in grouping_ids:
                     new_expense = Expenses_Model(
@@ -350,8 +338,8 @@ class Expenses_Utility:
                     countj = 0
                     for j in codes:
                         # print("countj:", countj)
-                        print("j:", j)
-                        print("from_currency:", from_currency)
+                        #print("j:", j)
+                        #print("from_currency:", from_currency)
                         #print("currency_ids:", currency_ids)
 
                         convert_currency_reponse = self.currency_utility.create_currency_converter({
@@ -370,7 +358,7 @@ class Expenses_Utility:
                         if status_code != 200:
                             convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
                             db.session.rollback()
-                            print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
+                            #print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
                             return jsonify(message=convert_currency_reponse_content), status_code
 
                         countj += 1
