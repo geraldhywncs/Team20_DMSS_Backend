@@ -29,7 +29,7 @@ class Expenses_Controller:
             data = request.get_json()
             return self.expenses_utility.update_expense(data)
 
-        @app.route('/expenses/delete', methods=['POST'])
+        @app.route('/expenses/delete', methods=['DELETE'])
         def delete_expense():
             data = request.get_json()
             return self.expenses_utility.delete_expense(data)

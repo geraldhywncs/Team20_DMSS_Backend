@@ -24,25 +24,48 @@ class Expenses_Utility:
 
     def read_expenses(self, data):
         try:
-            expense_id = data.get('id')
-            if expense_id is not None:
-                expense = Expenses_Model.query.get(expense_id)
-                if expense:
-                    return jsonify(user_id=expense.user_id, share_amount=expense.share_amount, receipt_id=expense.receipt_id)
-                else:
-                    return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-            else:
-                expenses = Expenses_Model.query.all()
-                if expenses:
-                    expense_list = [{'user_id': expense.user_id, 'share_amount': expense.share_amount, 'receipt_id': expense.receipt_id} for expense in expenses]
-                    return jsonify(expenses=expense_list)
-                else:
-                    return jsonify(message=f'Expenses are not found'), 404
-                
-        except Exception as e:
-            return jsonify(message=f'Error reading expenses: {str(e)}'), 500
+            user_id = data.get('user_id')
+            if user_id is None:
+                return jsonify(message='User ID is required'), 400
 
-   
+            receipts = Receipt_Model.query.filter_by(created_user_id=user_id).order_by(Receipt_Model.created_datetime.desc()).all()
+            if receipts:
+                receipt_list = []
+                for receipt in receipts:
+                    expenses = Expenses_Model.query.filter_by(user_id=user_id, receipt_id=receipt.receipt_id).all()
+                    expense_data = [{
+                        'expense_id': expense.expenses_id,
+                        'share_amount': expense.share_amount
+                    } for expense in expenses]
+
+                    category = Category_Model.query.filter_by(user_id=user_id, category_id=receipt.cat_id).first()
+                    category_name = category.category_name if category else None
+
+                    recurring = Recurring_Frequency_Model.query.filter_by(recurring_id=receipt.recur_id).first()
+                    recurring_name = recurring.recur_name if recurring else None
+
+                    receipt_data = {
+                        'receipt_id': receipt.receipt_id,
+                        'title': receipt.title,
+                        'description': receipt.description,
+                        'created_datetime': receipt.created_datetime,
+                        'group_id': receipt.group_id,
+                        'recur_id': receipt.recur_id,
+                        'cat_id': receipt.cat_id,
+                        'icon_id': receipt.icon_id,
+                        'updated_recur_datetime': receipt.updated_recur_datetime,
+                        'category_name': category_name,
+                        'recurring_name': recurring_name,
+                        'expenses': expense_data  
+                    }
+                    receipt_list.append(receipt_data)
+                return jsonify(receipts=receipt_list)
+            else:
+                return jsonify(message=f'No receipts found for user with ID {user_id}'), 404
+                    
+        except Exception as e:
+            return jsonify(message=f'Error reading receipts: {str(e)}'), 500
+
     def read_receipts_by_user(self, data):
         try:
             user_id = data.get('user_id')
@@ -106,19 +129,35 @@ class Expenses_Utility:
 
     def delete_expense(self,data):
         try:
-            if 'id' not in data:
-                return jsonify(message='Expense ID not specified in the request'), 400
-            expense_id = data['id']
-            expense = Expenses_Model.query.get(expense_id)
-            if not expense:
-                return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-            db.session.delete(expense)
-            db.session.commit()
-            return jsonify(message='Expense deleted successfully!')
-        except Exception as e:
-            return jsonify(message=f'Error delete expense: {str(e)}'), 500
+            receipt_id = data.get('receipt_id')
 
-    
+            if not receipt_id:
+                return jsonify({'error': 'Receipt ID is required', 'status_code': 400}), 400
+
+            receipt = Receipt_Model.query.get(receipt_id) #From receipt model
+            if not receipt:
+                return jsonify({'error': 'Receipt not found', 'status_code': 404}), 404
+
+            expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all() #From expense model
+            if not expenses:
+                return jsonify({'error': 'Expenses not found for this receipt', 'status_code': 404}), 404
+
+            for expense in expenses:    #Delete expenses with receipt id
+                db.session.delete(expense)
+
+            # currency_conversions = Currency_Conversion_Model.query.filter_by(expense_id=expense_id).all()
+
+            # for conversion in currency_conversions:
+            #     db.session.delete(conversion)
+            
+            db.session.delete(receipt)  #Delete the receipts
+            db.session.commit() 
+            
+            return jsonify({'message': 'Receipt & expenses deleted successfully.', 'status_code': 200}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Error deleting receipt and expenses: {str(e)}', 'status_code': 500}), 500
+
     def split_expense(self, data):
         try:
             if 'groupId' not in data:
