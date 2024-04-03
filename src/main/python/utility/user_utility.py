@@ -24,6 +24,10 @@ class User_Utility:
 
     def create(self, user_name, email, password, first_name, last_name):
         try:
+            # added by wj for signup pw encryption
+            password = self.encrypt_password(password.encode('utf-8'))
+           
+           
             user = User_Model(user_name=user_name, email=email, password=password, first_name=first_name, last_name=last_name, bio='')
             db.session.add(user)
             db.session.commit()

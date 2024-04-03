@@ -4,6 +4,10 @@ from utility.user_utility import User_Utility
 from utility.groups_utility import Groups_Utility
 from utility.grouping_utility import Grouping_Utility
 from utility.friends_utility import Friends_Utility
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 class User_Controller:
     def __init__(self, app):
@@ -116,6 +120,13 @@ class User_Controller:
                 first_name,
                 last_name,
             )
+            logging.debug("Received user data: user_name=%s, email=%s, password=%s, first_name=%s, last_name=%s",
+                  user_name, email, password, first_name, last_name)
+            print(user)
+            print(user_status_code)
+
+            logging.debug("received from server: ", user, " and ", user_status_code)
             if not isinstance(user, dict):
-                return jsonify(message=user), user_status_code
-            return jsonify(user=user), 200
+                return jsonify(message=user, user_status_code = 500), user_status_code
+            return jsonify(user=user, user_status_code=201), user_status_code
+            # return jsonify(user={"user_id": user["user_id"]}), 200
