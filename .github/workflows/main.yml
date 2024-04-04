@@ -1,0 +1,27 @@
+name: Build and Push Docker Image to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Build Docker image
+        run: |
+          docker build -t dmss_python_image -f Dockerfile.python .
+          
+      - name: Push Docker image to ECR
+        run: |
+          docker tag dmss_python_image:latest 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend:latest
+          aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com
+          docker push 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend:latest
+          
+      - name: Cleanup
+        run: docker logout
