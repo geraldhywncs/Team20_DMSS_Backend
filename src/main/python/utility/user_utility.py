@@ -13,14 +13,14 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import getpass
 
-import boto3
+# import boto3
 from botocore.exceptions import ClientError
 
 
 
 class User_Utility:
-    def __init__(self):
-        self.ses_client = boto3.client('ses', region_name='ap-southeast-1')
+    # def __init__(self):
+        # self.ses_client = boto3.client('ses', region_name='ap-southeast-1')
 
     def create(self, user_name, email, password, first_name, last_name):
         try:
