@@ -154,7 +154,9 @@ class User_Utility:
                 print(f"data.get('email') {data.get('email')}")
                 if decrypted_password == data.get('password'):
                     user_id = user_data.get("user").get("user_id")
-                    return jsonify(user_id=user_id, status_code="200"), 200
+                    user_first_name = user_data.get("user").get("first_name")
+                    print("user first name: " + user_data.get("user").get("first_name"))
+                    return jsonify(user_id=user_id,user_first_name=user_first_name, status_code="200"), 200
                 else:
                     return jsonify(status_code="400"), 400
             else:
