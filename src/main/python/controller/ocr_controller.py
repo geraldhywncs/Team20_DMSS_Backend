@@ -21,16 +21,16 @@ class OCR_Controller:
 
             img = cv2.imdecode(np.frombuffer(image_file.read(), np.uint8), cv2.IMREAD_COLOR)
 
-            extracted_text = OCR_Utility.extract_text(img)
-            print(extracted_text)
+            extracted_amount = OCR_Utility.ocr_process(img)
+            print(extracted_amount)
 
-            cleaned_text = OCR_Utility.clean_text(extracted_text)
-            print(cleaned_text)
+            # cleaned_text = OCR_Utility.clean_text(extracted_text)
+            # print(cleaned_text)
             
-            if cleaned_text and re.match(r'^\d+(\.\d{1,2})?$', cleaned_text):
-                return jsonify(response =float(cleaned_text), ocr_status_code=200)
+            if extracted_amount and re.match(r'^\d+(\.\d{1,2})?$', extracted_amount):
+                return jsonify(response =float(extracted_amount), ocr_status_code=200)
             else:
-                return jsonify(response=cleaned_text,ocr_status_code=400), 400
+                return jsonify(response=extracted_amount,ocr_status_code=400), 400
 
             # return jsonify( receipt_amount = cleaned_text)
 

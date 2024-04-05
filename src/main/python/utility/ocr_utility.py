@@ -1,147 +1,89 @@
 import cv2
 import pytesseract
-import numpy
+import numpy as np
 from skimage.filters import threshold_local
 import re
 
 
 class OCR_Utility:
-    # def __init__(self):
-    #     self.ocr_utility = OCR_Utility()
-    def extract_text(img):
-        ###### Locate receipt in photo ######
-
-        # To resize if image too large
+    @staticmethod
+    def ocr_process(img):
         def opencv_resize(image, ratio):
             width = int(image.shape[1] * ratio)
             height = int(image.shape[0] * ratio)
             dim = (width, height)
             return cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
 
-        ### Search for receipt in image ###
-        # approximate the contour by a more primitive polygon shape
         def approximate_contour(contour):
             peri = cv2.arcLength(contour, True)
-            return cv2.approxPolyDP(contour, 0.032 * peri, True)
+            return cv2.approxPolyDP(contour, 0.04 * peri, True)
 
         def get_receipt_contour(contours):
-            # loop over the contours
             for c in contours:
                 approx = approximate_contour(c)
-                # if our approximated contour has four points, we can assume it is receipt's rectangle
                 if len(approx) == 4:
                     return approx
 
-        # Read the image using OpenCV
-        print("ocr_utility called")
-        image = img
+        #downscale image for processing efficiency
+        resize = 800 / img.shape[0]
+        original = img.copy()
+        img = opencv_resize(img, resize)
 
-        # Downscale image as finding receipt contour is more efficient on a small image
-        resize = 500 / image.shape[0]
-        original = image.copy()
-        image = opencv_resize(image, resize)
-
-        # # Resize the image to a smaller size
-
-        # Convert the image to grayscale
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # Apply a Gaussian blur to the image
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        edged = cv2.Canny(blurred, 50, 150)
 
-        # Detect white regions
-        rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
-        dilated = cv2.dilate(blurred, rectKernel)
+        # locates contours
+        contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
+        receipt_contour = get_receipt_contour(contours)
 
-        # Detect edges
-        edged = cv2.Canny(dilated, 100, 200, apertureSize=3)
-        contours, hierarchy = cv2.findContours(
-            edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-        )
-        image_with_contours = cv2.drawContours(
-            image.copy(), contours, -1, (0, 255, 0), 3
-        )
-
-        largest_contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
-
-        receipt_contour = get_receipt_contour(largest_contours)
-
-        ###### Locate receipt in photo ######
-
+        # Perspective transformation
         def contour_to_rect(contour):
             pts = contour.reshape(4, 2)
-            rect = numpy.zeros((4, 2), dtype="float32")
-            # top-left point has the smallest sum
-            # bottom-right has the largest sum
+            rect = np.zeros((4, 2), dtype="float32")
             s = pts.sum(axis=1)
-            rect[0] = pts[numpy.argmin(s)]
-            rect[2] = pts[numpy.argmax(s)]
-            # compute the difference between the points:
-            # the top-right will have the minumum difference
-            # the bottom-left will have the maximum difference
-            diff = numpy.diff(pts, axis=1)
-            rect[1] = pts[numpy.argmin(diff)]
-            rect[3] = pts[numpy.argmax(diff)]
+            rect[0] = pts[np.argmin(s)]
+            rect[2] = pts[np.argmax(s)]
+            diff = np.diff(pts, axis=1)
+            rect[1] = pts[np.argmin(diff)]
+            rect[3] = pts[np.argmax(diff)]
             return rect / resize
 
-        def wrap_perspective(img, rect):
-            # unpack rectangle points: top left, top right, bottom right, bottom left
+        def warp_perspective(img, rect):
             (tl, tr, br, bl) = rect
-            # compute the width of the new image
-            widthA = numpy.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-
-            widthB = numpy.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
-            # compute the height of the new image
-            heightA = numpy.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-            heightB = numpy.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-            # take the maximum of the width and height values to reach
-            # our final dimensions
+            widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+            widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
             maxWidth = max(int(widthA), int(widthB))
+            heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+            heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
             maxHeight = max(int(heightA), int(heightB))
-            # destination points which will be used to map the screen to a "scanned" view
-            dst = numpy.array(
-                [
-                    [0, 0],
-                    [maxWidth - 1, 0],
-                    [maxWidth - 1, maxHeight - 1],
-                    [0, maxHeight - 1],
-                ],
-                dtype="float32",
-            )
-            # calculate the perspective transform matrix
+            dst = np.array([[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]], dtype="float32")
             M = cv2.getPerspectiveTransform(rect, dst)
-            # warp the perspective to grab the screen
             return cv2.warpPerspective(img, M, (maxWidth, maxHeight))
 
+        scanned = warp_perspective(original.copy(), contour_to_rect(receipt_contour))
+
+        # Text extraction
         def bw_scanner(image):
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            T = threshold_local(gray, 21, offset=10, method="gaussian")
+            T = threshold_local(gray, 15, offset=8, method="gaussian")
             return (gray > T).astype("uint8") * 255
 
-        scanned = wrap_perspective(original.copy(), contour_to_rect(receipt_contour))
-
-        # Use pytesseract to extract text from the image
         result = bw_scanner(scanned)
-        outputText = pytesseract.image_to_string(result)
+        output_text = pytesseract.image_to_string(result)
 
-        # For testing
+        print("Detected output text: " + output_text)
 
-        print("detected output text: " + outputText)
-
-        return outputText
-
-
-
-    def clean_text (extracted_text):
         amount_patterns = [
             r'(?:total|amount|due).*?([+-]?\d+(?:\.\d+)?)',
             r'(?<=total|amount|due|balance).*?([+-]?\d+(?:\.\d+)?)',
-        # Add more patterns as needed
+            # Add more patterns as needed
         ]
 
         final_amount = None
         for pattern in amount_patterns:
-            match = re.search(pattern, extracted_text, re.IGNORECASE)
+            match = re.search(pattern, output_text, re.IGNORECASE)
             if match:
                 final_amount = match.group(1)
                 break
