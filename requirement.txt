@@ -11,4 +11,7 @@ cryptography
 pytest
 schedule
 boto3
-
+opencv-python
+pytesseract
+scikit-image
+numpy
