@@ -7,6 +7,7 @@ from model.category_model import Category_Model
 from model.currencies_model import Currencies_Model
 from model.icon_model import Icon_Model
 from model.groups_model import Groups_Model
+from model.currency_conversion_model import Currency_Conversion_Model
 from model.recurring_frequency_model import Recurring_Frequency_Model
 from utility.grouping_utility import Grouping_Utility
 from utility.currency_utility import Currency_Utility
@@ -238,17 +239,20 @@ class Expenses_Utility:
                 
             expense_ids = []
             for expense in expenses:    #Delete expenses with receipt id
-            
-                expenses_id.append(expense_id)
+                expense_ids.append(expense.expenses_id)
                 db.session.delete(expense)
+ 
             for expense_id in expense_ids:
-                currency_conversions = CurrencyConverterModel.query.filter_by(expense_id=expense_id).all()
-            
+                print(expense_id)
+
+                currency_conversions = Currency_Conversion_Model.query.filter_by(expense_id=expense_id).all()
+           
                 for currency_conversion in currency_conversions:
-                    db.seesion.delete(currency_conversion)
+                    db.session.delete(currency_conversion)
+ 
 
             db.session.delete(receipt)  #Delete the receipts
-            db.session.commit() 
+            db.session.commit()
             
             return jsonify({'message': 'Receipt & expenses deleted successfully.', 'status_code': 200}), 200
         except Exception as e:

@@ -12,11 +12,23 @@ from controller.user_controller import User_Controller
 from controller.friends_controller import Friends_Controller
 from utility.recurring_frequency_utility import Recurring_Frequency_Utility
 from controller.ocr_controller import OCR_Controller
+from configparser import ConfigParser
 
 import schedule
 import threading
 import time
+import os
 
+def read_tessaract_path():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(current_dir, 'config.ini')
+    config = ConfigParser()
+    config.read(config_file_path)
+    TESSARACT_PATH = config.get('path', 'TESSARACT_PATH')
+    return TESSARACT_PATH
+    
+new_path = read_tessaract_path()
+os.environ['PATH'] += os.pathsep + new_path
 # Instantiate app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -29,6 +41,8 @@ app.config['SQLALCHEMY_BINDS'] = {
 db.init_app(app)
 with app.app_context():
     db.create_all()
+
+
 
 # Define API routes
 Expenses_Controller(app)
