@@ -23,15 +23,8 @@ jobs:
           pip install pytest
 
       - name: Run pytest
-        id: pytest
         run: |
           pytest
-        continue-on-error: true
-
-      - name: Check pytest status
-        if: steps.pytest.outcome == 'failure'
-        run: |
-          echo "Pytest failed. Please check the test results."
 
       - name: Build Docker image
         if: ${{ success() }}
