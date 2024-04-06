@@ -13,17 +13,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
 
-      - name: Configure AWS CLI
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Specify your desired Python version
+
+      - name: Install dependencies
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ap-southeast-2
+          pip install pytest
+
+      - name: Run pytest
+        id: pytest
+        run: |
+          pytest
+        continue-on-error: true
+
+      - name: Check pytest status
+        if: steps.pytest.outcome == 'failure'
+        run: |
+          echo "Pytest failed. Please check the test results."
 
       - name: Build Docker image
+        if: ${{ success() }}
         run: |
           docker build -t dmss_python_image -f Dockerfile.python .
           
       - name: Push Docker image to ECR
+        if: ${{ success() }}
         run: |
           docker tag dmss_python_image:latest 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend:latest
           aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com
