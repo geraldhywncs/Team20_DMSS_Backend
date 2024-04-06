@@ -236,14 +236,17 @@ class Expenses_Utility:
             if not expenses:
                 return jsonify({'error': 'Expenses not found for this receipt', 'status_code': 404}), 404
                 
+            expense_ids = []
             for expense in expenses:    #Delete expenses with receipt id
-            #     currency_conversions = CurrencyConverterModel.query.filter_by(expense_id=expense.expenses_id).all()
             
-            # for currency_conversion in currency_conversions:
-            #     db.session.delete(currency_conversion)
-
+                expenses_id.append(expense_id)
                 db.session.delete(expense)
+            for expense_id in expense_ids:
+                currency_conversions = CurrencyConverterModel.query.filter_by(expense_id=expense_id).all()
             
+                for currency_conversion in currency_conversions:
+                    db.seesion.delete(currency_conversion)
+
             db.session.delete(receipt)  #Delete the receipts
             db.session.commit() 
             
