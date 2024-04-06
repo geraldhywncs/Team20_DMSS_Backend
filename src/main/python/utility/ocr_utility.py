@@ -5,6 +5,7 @@ from skimage.filters import threshold_local
 import re
 
 
+
 class OCR_Utility:
     @staticmethod
     def ocr_process(img):

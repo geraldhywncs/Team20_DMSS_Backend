@@ -15,3 +15,6 @@ opencv-python
 pytesseract
 scikit-image
 numpy
+opencv-python
+pytesseract
+scikit-image

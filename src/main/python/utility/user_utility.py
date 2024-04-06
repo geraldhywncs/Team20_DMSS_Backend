@@ -120,6 +120,7 @@ class User_Utility:
         key = self.read_fernet_key()
         print(key)
         cipher_suite = Fernet(key)
+        print(cipher_suite.decrypt(password).decode())
         return cipher_suite.decrypt(password).decode()
     
     def encrypt_password(self, password):
@@ -148,14 +149,14 @@ class User_Utility:
                 user_response_content = user_response.get_data(as_text=True)
                 user_data = json.loads(user_response_content)
                 user_password = user_data.get("user").get("password")
-                print(user_password)
+                # print(user_password)
                 decrypted_password = self.decrypt_password(user_password)
                 print(f"decrypted_password {decrypted_password}")
-                print(f"data.get('email') {data.get('email')}")
+                # print(f"data.get('email') {data.get('email')}")
                 if decrypted_password == data.get('password'):
                     user_id = user_data.get("user").get("user_id")
                     user_first_name = user_data.get("user").get("first_name")
-                    print("user first name: " + user_data.get("user").get("first_name"))
+                    # print("user first name: " + user_data.get("user").get("first_name"))
                     return jsonify(user_id=user_id,user_first_name=user_first_name, status_code="200"), 200
                 else:
                     return jsonify(status_code="400"), 400

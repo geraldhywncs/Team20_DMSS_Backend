@@ -7,6 +7,7 @@ from model.category_model import Category_Model
 from model.currencies_model import Currencies_Model
 from model.icon_model import Icon_Model
 from model.groups_model import Groups_Model
+from model.currency_conversion_model import Currency_Conversion_Model
 from model.recurring_frequency_model import Recurring_Frequency_Model
 from utility.grouping_utility import Grouping_Utility
 from utility.currency_utility import Currency_Utility
@@ -238,17 +239,20 @@ class Expenses_Utility:
                 
             expense_ids = []
             for expense in expenses:    #Delete expenses with receipt id
-            
-                expenses_id.append(expense_id)
+                expense_ids.append(expense.expenses_id)
                 db.session.delete(expense)
+ 
             for expense_id in expense_ids:
-                currency_conversions = CurrencyConverterModel.query.filter_by(expense_id=expense_id).all()
-            
+                print(expense_id)
+
+                currency_conversions = Currency_Conversion_Model.query.filter_by(expense_id=expense_id).all()
+           
                 for currency_conversion in currency_conversions:
-                    db.seesion.delete(currency_conversion)
+                    db.session.delete(currency_conversion)
+ 
 
             db.session.delete(receipt)  #Delete the receipts
-            db.session.commit() 
+            db.session.commit()
             
             return jsonify({'message': 'Receipt & expenses deleted successfully.', 'status_code': 200}), 200
         except Exception as e:
@@ -330,6 +334,8 @@ class Expenses_Utility:
                     
             data['group_id'] = None if "group_id" not in data or data['group_id'] == "" else data['group_id']
             data['recur_id'] = None if "recur_id" not in data or data['recur_id'] == "" else data['recur_id']
+            data['share_amount'] = round(float(data['share_amount']), 2)
+            
 
             new_receipt = Receipt_Model(
                 created_user_id=data['user_id'],
@@ -423,7 +429,7 @@ class Expenses_Utility:
                     #print("j:", j)
                     #print("from_currency:", from_currency)
                     #print("currency_ids:", currency_ids)
-
+                    print(exchange_rates_n_coverted_amount[countj].get("converted_amount"))
                     convert_currency_reponse = self.currency_utility.create_currency_converter({
                         "original_currency": from_currency_id,
                         "convert_currency": currency_ids[countj],
@@ -452,6 +458,7 @@ class Expenses_Utility:
                 grouping_ids = [group['user_id'] for group in grouping_data]
 
                 for grouping_id in grouping_ids:
+                    print(data['share_amount'])
                     new_expense = Expenses_Model(
                         user_id=grouping_id,
                         share_amount=data['share_amount'],
