@@ -75,7 +75,8 @@ class Currency_Utility:
             if "converted_amount" not in data:
                 return jsonify(message='Invalid request. Please provide converted amount.', status_code = 400), 400
             
-            
+            data['converted_amount'] = round(float(data['converted_amount']), 2)
+
             new_converted_currency = Currency_Conversion_Model(expense_id = data['expense_id'], 
                                                                original_currency = data['original_currency'],
                                                                convert_currency = data['convert_currency'],
@@ -91,4 +92,5 @@ class Currency_Utility:
 
         except Exception as e:
             db.session.rollback()
+            print(e)
             return jsonify(message=f'Error creating currency converter: {str(e)}', status_code = 500), 500
