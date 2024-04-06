@@ -24,11 +24,18 @@ class Expenses_Controller:
             data = request.json
             return self.expenses_utility.read_receipts_by_user(data)
         
+        @app.route('/expenses/read_receipt_by_id', methods=['POST'])
+        def read_receipt_by_id():
+            data = request.json
+            return self.expenses_utility.read_receipt_by_id(data)
+
         @app.route('/expenses/update', methods=['POST'])
         def update_expense():
             data = request.get_json()
+            print(data)
             return self.expenses_utility.update_expense(data)
 
+        # @app.route('/expenses/delete', methods=['POST'])
         @app.route('/expenses/delete', methods=['DELETE'])
         def delete_expense():
             data = request.get_json()

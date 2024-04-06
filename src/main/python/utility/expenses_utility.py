@@ -22,7 +22,7 @@ class Expenses_Utility:
         self.grouping_utility = Grouping_Utility()
         self.currency_utility = Currency_Utility()
 
-    def read_expenses(self, data):
+    def read_expenses(self, data): #TransactionView > TransactionInfo > Endpoint
         try:
             user_id = data.get('user_id')
             if user_id is None:
@@ -111,20 +111,114 @@ class Expenses_Utility:
             return jsonify(message=f'Error reading receipts: {str(e)}'), 500
 
 
-    def update_expense(self, data):
+    def read_receipt_by_id(self, data): #EditTransactionButton > ReceiptInfo > EndPoint
         try:
-            if 'id' not in data:
-                return jsonify(message='Expense ID not specified in the request'), 400
-            expense_id = data['id']
-            expense = Expenses_Model.query.get(expense_id)
-            if not expense:
-                return jsonify(message=f'Expense with ID {expense_id} not found'), 404
-            expense.name = data['name']
-            expense.expenses = data['expenses']
-            db.session.commit()
-            return jsonify(message='Expense updated successfully!')
+            receipt_id = data.get('receipt_id')
+            created_user_id = data.get('created_user_id')
+
+            # Check if receipt ID is provided
+            if not receipt_id:
+                return jsonify(message='Receipt ID is required'), 400
+
+            receipt = Receipt_Model.query.get(receipt_id)
+            
+            # Check if the receipt exists
+            if not receipt:
+                return jsonify(message='Receipt not found'), 404
+            if created_user_id is not None and receipt.created_user_id != created_user_id:
+                return jsonify(message='Receipt does not belong to the user'), 403
+
+            expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all()
+
+            category = Category_Model.query.get(receipt.cat_id)
+
+            icon = Icon_Model.query.get(receipt.icon_id)
+
+            recurring = Recurring_Frequency_Model.query.get(receipt.recur_id)
+
+            group = Groups_Model.query.get(receipt.group_id)
+
+            receipt_data = {
+                'receipt_id': receipt.receipt_id,
+                'created_user_id': receipt.created_user_id,
+                'title': receipt.title,
+                'description': receipt.description,
+                'group_id': receipt.group_id,
+                'group_name': group.group_name if group else None,  # Include group name
+                'recur_id': receipt.recur_id,
+                'cat_id': receipt.cat_id,
+                'category_name': category.category_name if category else None,  # Include category name
+                'icon_id': receipt.icon_id,
+                'icon_name': icon.icon_name if icon else None,  # Include icon name
+                'created_datetime': receipt.created_datetime,
+                'recurring_name': recurring.recur_name if recurring else None,  # Include recurring name
+                'expenses': [] 
+            }
+
+            for expense in expenses:
+                expense_data = {
+                    'expense_id': expense.expenses_id,
+                    'share_amount': expense.share_amount
+                }
+                receipt_data['expenses'].append(expense_data)
+
+            return jsonify(receipt_data), 200
+
         except Exception as e:
-            return jsonify(message=f'Error update expense: {str(e)}'), 500
+            db.session.rollback()
+            return jsonify({'error': f'Error fetching receipt: {str(e)}', 'status_code': 500}), 500
+
+
+    def update_expense(self, data): #EditTransactionButton > EditTransactionPage > EditTransaction > Endpoint
+        try:
+            receipt_id = data.get('receipt_id')
+            if not receipt_id:
+                return jsonify(message='Receipt ID is required'), 400
+
+            receipt = Receipt_Model.query.get(receipt_id)
+            if not receipt:
+                return jsonify(message='Receipt not found'), 404
+
+            # Update receipt properties if they are present in the data
+            if 'title' in data:
+                receipt.title = data['title']
+            if 'description' in data:
+                receipt.description = data['description']
+            if 'group_id' in data:
+                receipt.group_id = data['group_id']
+            if 'group_name' in data:
+                receipt.group_name = data['group_name']
+            if 'recur_id' in data:
+                receipt.recur_id = data['recur_id']
+            if 'recurring_name' in data:
+                receipt.recur_id = data['recurring_name']    
+            if 'icon_id' in data:
+                receipt.icon_id = data['icon_id']
+            if 'icon_name' in data:
+                receipt.icon_id = data['icon_name']
+            if 'cat_id' in data:
+                receipt.cat_id = data['cat_id']
+            if 'category_name' in data:
+                receipt.category_name = data['category_name']   
+
+            if 'share_amount' in data:
+                expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all()
+                for expense in expenses:
+                    expense.share_amount = data['share_amount']
+                    
+            if 'recurring_name' in data:
+                receipt.recurring_name = data['recurring_name']
+            if 'created_datetime' in data:
+                receipt.created_datetime = data['created_datetime']
+            # Update other properties as needed
+            
+            db.session.commit()
+
+            return jsonify({'message': 'Receipt updated successfully', 'status_code': 200}), 200
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Error updating receipt: {str(e)}', 'status_code': 500}), 500
 
 
     def delete_expense(self,data):
@@ -141,14 +235,14 @@ class Expenses_Utility:
             expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all() #From expense model
             if not expenses:
                 return jsonify({'error': 'Expenses not found for this receipt', 'status_code': 404}), 404
-
+                
             for expense in expenses:    #Delete expenses with receipt id
+            #     currency_conversions = CurrencyConverterModel.query.filter_by(expense_id=expense.expenses_id).all()
+            
+            # for currency_conversion in currency_conversions:
+            #     db.session.delete(currency_conversion)
+
                 db.session.delete(expense)
-
-            # currency_conversions = Currency_Conversion_Model.query.filter_by(expense_id=expense_id).all()
-
-            # for conversion in currency_conversions:
-            #     db.session.delete(conversion)
             
             db.session.delete(receipt)  #Delete the receipts
             db.session.commit() 
@@ -157,6 +251,7 @@ class Expenses_Utility:
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': f'Error deleting receipt and expenses: {str(e)}', 'status_code': 500}), 500
+
 
     def split_expense(self, data):
         try:
