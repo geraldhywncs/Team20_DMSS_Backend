@@ -16,13 +16,20 @@ def client():
         yield client
 
 @pytest.fixture(scope='function')
-def init_db():
+def init_db(request):
     """Initialize a clean database before each test."""
     with app.app_context():
         db.drop_all()
         db.create_all()
         yield db
         db.session.rollback()
+        db.drop_all()
+
+        # Add a finalizer to ensure teardown
+        def fin():
+            db.session.remove()
+            db.drop_all()
+        request.addfinalizer(fin)
 
 @pytest.fixture(scope="function")
 def setup():
