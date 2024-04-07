@@ -29,6 +29,7 @@ def read_tessaract_path():
     
 new_path = read_tessaract_path()
 os.environ['PATH'] += os.pathsep + new_path
+
 # Instantiate app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes

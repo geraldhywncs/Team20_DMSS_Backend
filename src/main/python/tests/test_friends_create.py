@@ -1,4 +1,4 @@
-update root dir
+# update root dir
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
