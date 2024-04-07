@@ -4,6 +4,9 @@ FROM continuumio/anaconda3:latest
 # Set the working directory
 WORKDIR /app/src/main/python
 
+# Install libgl1-mesa-glx package for OpenCV dependency
+RUN apt-get update && apt-get install -y libgl1-mesa-glx tesseract-ocr
+
 # Copy the Python script into the container
 COPY src/main/python/ .
 COPY requirement.txt .
