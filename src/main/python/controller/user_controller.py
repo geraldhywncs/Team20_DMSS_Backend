@@ -110,6 +110,17 @@ class User_Controller:
             password = data.get('password')
             first_name = data.get('first_name')
             last_name = data.get('last_name')
+
+            userlist = self.user_utility.list()[0]
+            print(userlist)
+
+            for signup_data in userlist:
+                if signup_data['user_name'] == user_name:
+                    return jsonify(message='Username already exists!', user_status_code = 501)
+                if signup_data['email'] == email:
+                    return jsonify(message='Email already exists!', user_status_code = 501)
+                continue
+
             user, user_status_code = self.user_utility.create(
                 user_name,
                 email,
@@ -122,5 +133,6 @@ class User_Controller:
 
             if not isinstance(user, dict):
                 return jsonify(message=user, user_status_code = 500), user_status_code
+            
             return jsonify(user=user, user_status_code=201), user_status_code
             # return jsonify(user={"user_id": user["user_id"]}), 200
