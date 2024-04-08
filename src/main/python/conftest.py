@@ -20,9 +20,8 @@ def init_db():
         db.drop_all()
         db.create_all()
         yield db
-        db.session.rollback()
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def teardown_db_after_file():
     """This fixture will be executed once after all test functions in the test file have run."""
     yield
@@ -30,4 +29,3 @@ def teardown_db_after_file():
     # Perform teardown actions here, such as cleaning up the database
     with app.app_context():
         db.drop_all()
-        db.session.rollback()
