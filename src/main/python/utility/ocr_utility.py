@@ -3,6 +3,7 @@ import pytesseract
 import numpy as np
 from skimage.filters import threshold_local
 import re
+# import os
 
 
 
@@ -14,7 +15,18 @@ class OCR_Utility:
             height = int(image.shape[0] * ratio)
             dim = (width, height)
             return cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+        
+        ## for testing
+        # output_dir = os.path.dirname(__file__)
+        # def save_image(image, name):
+        #     cv2.imwrite(os.path.join(output_dir, name), image)
 
+        ## end of testing portion
+        def bw_scanner(image):
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            T = threshold_local(gray, 15, offset=8, method="gaussian")
+            return (gray > T).astype("uint8") * 255
+        
         def approximate_contour(contour):
             peri = cv2.arcLength(contour, True)
             return cv2.approxPolyDP(contour, 0.04 * peri, True)
@@ -22,13 +34,15 @@ class OCR_Utility:
         def get_receipt_contour(contours):
             for c in contours:
                 approx = approximate_contour(c)
-                if len(approx) == 4:
-                    return approx
+                # if len(approx) == 4:
+                #     return approx
+                return approx
 
         #downscale image for processing efficiency
         resize = 800 / img.shape[0]
         original = img.copy()
         img = opencv_resize(img, resize)
+        # save_image(img, "1_resized.jpg")
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -38,6 +52,7 @@ class OCR_Utility:
         contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
         receipt_contour = get_receipt_contour(contours)
+
 
         # Perspective transformation
         def contour_to_rect(contour):
@@ -62,24 +77,49 @@ class OCR_Utility:
             dst = np.array([[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]], dtype="float32")
             M = cv2.getPerspectiveTransform(rect, dst)
             return cv2.warpPerspective(img, M, (maxWidth, maxHeight))
+        print(receipt_contour)
+        if len(receipt_contour) != 4:
+            print('unable to detect corners with confidence. Attempting to process without contours')
 
-        scanned = warp_perspective(original.copy(), contour_to_rect(receipt_contour))
+            result = bw_scanner(original)
+            # save_image(result, "3_bw_scanned.jpg")
+            output_text = pytesseract.image_to_string(result)
+            
+            print("Detected output text: " + output_text)
+        
+        else:
+            print((receipt_contour))
+            scanned_area = cv2.contourArea(receipt_contour)
+            original_area = original.shape[0] * original.shape[1]
+            scanned_area_percentage = scanned_area / original_area
+            print('image area approx: ' + str(scanned_area_percentage))
+            
+            if (len(receipt_contour)==4 and scanned_area_percentage>0.1):
+                print('image is clear! ')
+                scanned = warp_perspective(original.copy(), contour_to_rect(receipt_contour))
+                # save_image(scanned, "2_transformed.jpg")
+                # Text extraction
 
-        # Text extraction
-        def bw_scanner(image):
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            T = threshold_local(gray, 15, offset=8, method="gaussian")
-            return (gray > T).astype("uint8") * 255
 
-        result = bw_scanner(scanned)
-        output_text = pytesseract.image_to_string(result)
+                result = bw_scanner(scanned)
+                # save_image(result, "3_bw_scanned.jpg")
+                output_text = pytesseract.image_to_string(result)
 
-        print("Detected output text: " + output_text)
+                print("Detected output text: " + output_text)
+            else:
+                print('image unclear. proceed to process without contours')
+
+                result = bw_scanner(original)
+                # save_image(result, "3_bw_scanned.jpg")
+                output_text = pytesseract.image_to_string(result)
+
+                print("Detected output text: " + output_text)
+
 
         amount_patterns = [
             r'(?:total|amount|due).*?([+-]?\d+(?:\.\d+)?)',
-            r'(?<=total|amount|due|balance).*?([+-]?\d+(?:\.\d+)?)',
-            # Add more patterns as needed
+            # r'(?<=total|amount|due|balance).*?([+-]?\d+(?:\.\d+)?)',
+            r'(?<=(?:total|amount|due|balance){4}).*?([+-]?\d+(?:\.\d+)?)'
         ]
 
         final_amount = None
@@ -89,4 +129,4 @@ class OCR_Utility:
                 final_amount = match.group(1)
                 break
 
-        return final_amount
+        return [final_amount, output_text]
