@@ -17,10 +17,11 @@ def is_pytest_running():
     return any('pytest' in arg for arg in sys.argv)
 
 class Database_Config:
-    SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1')
-    if is_pytest_running():
-        #TODO Gerald to change this to test DB
-        SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1')
+    #SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1')
+    SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1_AWS')
+    # if is_pytest_running():
+    #     #TODO Gerald to change this to test DB
+    #     SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1')
     #TODO Gerald to add for AWS
     # elif AWS:
     #     SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1_AWS')
