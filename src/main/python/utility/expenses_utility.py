@@ -67,6 +67,8 @@ class Expenses_Utility:
         except Exception as e:
             return jsonify(message=f'Error reading receipts: {str(e)}'), 500
 
+
+
     def read_receipts_by_user(self, data):
         try:
             user_id = data.get('user_id')
@@ -82,6 +84,19 @@ class Expenses_Utility:
                         'expense_id': expense.expenses_id,
                         'share_amount': expense.share_amount
                     } for expense in expenses]
+
+                    currency_conversion_data = []
+                    for expense in expenses:
+                        # Fetch currency conversion data for each expense
+                        currency_conversion = Currency_Conversion_Model.query.filter_by(expense_id=expense.expenses_id).all()
+                        for conversion in currency_conversion:
+                            currency_conversion_data.append({
+                                'conversion_id': conversion.conversion_id,
+                                'original_currency': conversion.original_currency,
+                                'convert_currency': conversion.convert_currency,
+                                'exchange_rate': conversion.exchange_rate,
+                                'converted_amount': conversion.converted_amount
+                            })
 
                     category = Category_Model.query.filter_by(user_id=user_id, category_id=receipt.cat_id).first()
                     category_name = category.category_name if category else None
@@ -101,15 +116,17 @@ class Expenses_Utility:
                         'updated_recur_datetime': receipt.updated_recur_datetime,
                         'category_name': category_name,
                         'recurring_name': recurring_name,
-                        'expenses': expense_data  
+                        'expenses': expense_data,
+                        'currency_conversion': currency_conversion_data
                     }
                     receipt_list.append(receipt_data)
                 return jsonify(receipts=receipt_list)
             else:
                 return jsonify(message=f'No receipts found for user with ID {user_id}'), 404
-                    
+                        
         except Exception as e:
             return jsonify(message=f'Error reading receipts: {str(e)}'), 500
+
 
 
     def read_receipt_by_id(self, data): #EditTransactionButton > ReceiptInfo > EndPoint
