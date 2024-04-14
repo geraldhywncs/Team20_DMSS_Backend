@@ -72,7 +72,8 @@ def test_read_category_successed(client, init_db, setup):
             "category_id": 3,
             "category_name": "Rental",
             "user_id": 1
-        }
+        },
+        
     ]
     assert status_code == 200
 
@@ -129,7 +130,7 @@ def test_read_category_without_user_id_success(client):
 
 def test_read_category_invalid_user_id_failed(client):
     data = {
-        "user_id":"5000"
+        "user_id":123131
     }
 
     json_data = json.dumps(data)
@@ -149,13 +150,208 @@ def test_read_category_invalid_user_id_failed(client):
     assert data["message"].startswith("Category with user id")
 
 
+def test_read_category_invalid_data_type(client, init_db, setup):
+    data = {"user_id":"invalid"}
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/readCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 404 
+    assert data["status_code"] == "404"
+    assert "message" in data
+def test_read_category_with_valid_user_id(client, init_db, setup):
+    data = {"user_id":"1"}
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/readCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 200
+    assert data["status_code"] == "200"
+    assert "categories" in data
+
+def test_read_category_with_invalid_user_id(client, init_db, setup):
+    data = {"user_id":"5000"}
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/readCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 404
+    assert data["status_code"] == "404"
+    assert "message" in data
+
+def test_add_category_with_valid_data(client, init_db, setup):
+    data = {"category_name": "New Category", "user_id": "1"}
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/addCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == int(data["status_code"]) 
+    assert "message" in data
+
+def test_delete_category_with_valid_data(client, init_db, setup):
+    data = {"category_id": "1", "user_id": "1"}
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/deleteCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == int(data["status_code"])
+    assert "message" in data
+def test_add_category_without_category_name(client, init_db, setup):
+    data = {"user_id": "1"} 
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/addCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 400
+    assert "error" in data 
+
+def test_add_category_without_user_id(client, init_db, setup):
+    data = {"category_name": "New Category"}  # Missing user_id
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/addCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 400
+    assert "error" in data  
+def test_delete_category_without_category_id(client, init_db, setup):
+    data = {"user_id": "1"}  
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/deleteCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 400
+    assert "error" in data  
+
+def test_delete_category_without_user_id(client, init_db, setup):
+    data = {"category_id": "1"}  
+
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/deleteCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 400
+    assert "error" in data
+
+def test_add_category_with_existing_category(client, init_db, setup):
+    data = {"category_name": "Food", "user_id": "1"} 
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/addCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 409 
+    assert "error" in data
+
+def test_delete_category_with_non_existent_category(client, init_db, setup):
+    data = {"category_id": "5000", "user_id": "1"}  
+    json_data = json.dumps(data)
+
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/deleteCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 404
+    assert "error" in data
 
 
+def test_add_category_with_empty_category_name(client, init_db, setup):
+    data = {"category_name": "", "user_id": "1"} 
+    json_data = json.dumps(data)
 
+    headers = {'Content-Type': 'application/json'}
 
+    response = client.post('/category/addCategory', data=json_data, headers=headers)
 
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
 
+    data = json.loads(response.data)
 
+    assert status_code == 400  
+    assert "error" in data
 
+def test_delete_category_with_invalid_category_id(client, init_db, setup):
+    data = {"category_id": "invalid", "user_id": "1"}
 
+    json_data = json.dumps(data)
 
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/category/deleteCategory', data=json_data, headers=headers)
+
+    status_code = response.status_code if not isinstance(response, tuple) else response[1]
+
+    data = json.loads(response.data)
+
+    assert status_code == 404
+    assert "error" in data
