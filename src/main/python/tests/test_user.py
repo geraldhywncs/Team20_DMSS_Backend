@@ -432,8 +432,53 @@ def test_change_password_without_token_failed(client):
     assert status_code == 400
     assert data["message"]=="Invalid request. Please provide token."
 
+def test_create_user_success(client):
+    data = {
+        "user_name": "john_wick",
+        "email": "john.wick@NCS.com",
+        "password": "password123",
+        "first_name": "John",
+        "last_name": "Wick"
+    }
+    json_data = json.dumps(data)
+    headers = {'Content-Type': 'application/json'}
 
+    response = client.post('/user/createUser', data=json_data, headers=headers)
 
+    assert response.status_code == 201
+    assert "user_id" in json.loads(response.data)["user"]
+
+def test_create_user_duplicate_username(client):
+    data = {
+        "user_name": "Gerald",
+        "email": "john.wick@NCS.com",
+        "password": "password123",
+        "first_name": "John",
+        "last_name": "Wick"
+    }
+    json_data = json.dumps(data)
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/user/createUser', data=json_data, headers=headers)
+
+    assert response.json['user_status_code'] == 501
+    assert "Username already exists!" in response.json['message']
+
+def test_create_user_duplicate_email(client):
+    data = {
+        "user_name": "john_wick",
+        "email": "junjie.wee@ncs.com.sg",
+        "password": "password123",
+        "first_name": "John",
+        "last_name": "Wick"
+    }
+    json_data = json.dumps(data)
+    headers = {'Content-Type': 'application/json'}
+
+    response = client.post('/user/createUser', data=json_data, headers=headers)
+
+    assert response.json['user_status_code'] == 501
+    assert "Email already exists!" in response.json['message']
 
 
 
