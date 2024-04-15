@@ -81,5 +81,3 @@ jobs:
 
       - name: Cleanup
         run: docker logout
-
-
