@@ -22,6 +22,10 @@ jobs:
         run: |
           pip install -r ${{ github.workspace }}/requirement.txt
 
+      - name: Install tesseract-ocr
+        run: |
+          sudo apt-get tesseract-ocr
+
       - name: Run pytest
         id: pytest
         run: |
