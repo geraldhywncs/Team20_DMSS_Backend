@@ -24,7 +24,7 @@ jobs:
 
       - name: Install tesseract-ocr
         run: |
-          sudo apt-get tesseract-ocr
+          sudo apt-get install -y tesseract-ocr
 
       - name: Run pytest
         id: pytest
