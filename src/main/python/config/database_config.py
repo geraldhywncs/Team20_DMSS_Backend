@@ -30,6 +30,10 @@ def is_docker_environment():
 def is_ec2_environment():
     return "EC2" in os.environ
 
+def is_github_actions():
+    """Check if the code is running within a GitHub Actions pipeline."""
+    return os.environ.get('GITHUB_ACTIONS') == 'true'
+
 class Database_Config:
     if is_ec2_environment():
         if is_pytest_running():
@@ -37,7 +41,9 @@ class Database_Config:
         else: 
             SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1_AWS')
     else:
-        if is_docker_environment():
+        if is_github_actions():
+            SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1_AWS_TEST')
+        elif is_docker_environment():
             SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1_DOCKER')
         else: 
             SQLALCHEMY_DATABASE_URI1 = config.get('database', 'SQLALCHEMY_DATABASE_URI1')
