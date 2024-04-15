@@ -15,7 +15,7 @@ class Expenses_Controller:
             return self.expenses_utility.create_expense(data)
 
         @app.route('/expenses/read', methods=['POST'])
-        def get_expenses():
+        def read_expenses():
             data = request.get_json()
             return self.expenses_utility.read_expenses(data)
         

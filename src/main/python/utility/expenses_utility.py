@@ -32,13 +32,25 @@ class Expenses_Utility:
             receipts = Receipt_Model.query.filter_by(created_user_id=user_id).order_by(Receipt_Model.created_datetime.desc()).all()
             if receipts:
                 receipt_list = []
+                
                 for receipt in receipts:
-                    expenses = Expenses_Model.query.filter_by(user_id=user_id, receipt_id=receipt.receipt_id).all()
-                    expense_data = [{
-                        'expense_id': expense.expenses_id,
-                        'share_amount': expense.share_amount
-                    } for expense in expenses]
-
+                    expenses = Expenses_Model.query.filter_by(receipt_id=receipt.receipt_id).all()
+                    expense_data = []
+                    total_amount = 0
+                    print(len(expenses))
+                    for expense in expenses:
+                        # Fetch currency conversion data
+                        currency_conversion = Currency_Conversion_Model.query.filter_by(expense_id=expense.expenses_id, convert_currency=2).first()
+                        print("cc", currency_conversion.converted_amount)
+                        if currency_conversion:  # Only include if converted to SGD
+                            converted_amount = currency_conversion.converted_amount
+                            print("gete", converted_amount)
+                            total_amount += converted_amount
+                            expense_data.append({
+                                'expense_id': expense.expenses_id,
+                                'converted_amount': converted_amount
+                            })
+                    print("total", total_amount)
                     category = Category_Model.query.filter_by(user_id=user_id, category_id=receipt.cat_id).first()
                     category_name = category.category_name if category else None
 
@@ -57,13 +69,14 @@ class Expenses_Utility:
                         'updated_recur_datetime': receipt.updated_recur_datetime,
                         'category_name': category_name,
                         'recurring_name': recurring_name,
-                        'expenses': expense_data  
+                        'total_amount': total_amount,
+                        'expenses': expense_data
                     }
                     receipt_list.append(receipt_data)
                 return jsonify(receipts=receipt_list)
             else:
                 return jsonify(message=f'No receipts found for user with ID {user_id}'), 404
-                    
+
         except Exception as e:
             return jsonify(message=f'Error reading receipts: {str(e)}'), 500
 
@@ -128,7 +141,6 @@ class Expenses_Utility:
             return jsonify(message=f'Error reading receipts: {str(e)}'), 500
 
 
-
     def read_receipt_by_id(self, data): #EditTransactionButton > ReceiptInfo > EndPoint
         try:
             receipt_id = data.get('receipt_id')
@@ -143,20 +155,45 @@ class Expenses_Utility:
             # Check if the receipt exists
             if not receipt:
                 return jsonify(message='Receipt not found'), 404
+            
             if created_user_id is not None and receipt.created_user_id != created_user_id:
                 return jsonify(message='Receipt does not belong to the user'), 403
 
-            expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all()
+            # expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all()
+            # expense_data = [{
+            #         'expense_id': expense.expenses_id,
+            #         'share_amount': expense.share_amount
+            #     } for expense in expenses]
 
+            expenses = db.session.query(Expenses_Model, Currency_Conversion_Model.original_currency, Currencies_Model.name)\
+            .join(Currency_Conversion_Model, Expenses_Model.expenses_id == Currency_Conversion_Model.expense_id)\
+            .join(Currencies_Model, Currency_Conversion_Model.original_currency == Currencies_Model.currency_id)\
+            .filter(Expenses_Model.receipt_id == receipt_id)\
+            .all()
+
+            expense_data = []
+
+            for expense, currency_id, currency_name in expenses:
+                expense_data.append({
+                    'expense_id': expense.expenses_id,
+                    'share_amount': expense.share_amount,
+                    'currency_id': currency_id,
+                    'currency_name': currency_name
+            })
+                
             category = Category_Model.query.get(receipt.cat_id)
 
             icon = Icon_Model.query.get(receipt.icon_id)
 
-            recurring = Recurring_Frequency_Model.query.get(receipt.recur_id)
+            recurring = Recurring_Frequency_Model.query.get(receipt.recur_id) if receipt.recur_id else None
 
-            group = Groups_Model.query.get(receipt.group_id)
+            group = Groups_Model.query.get(receipt.group_id) if receipt.group_id else None
 
+            print("groupp", group)
+            print(category)
+            # print("Bef RE DAta", receipt_data)
             receipt_data = {
+                
                 'receipt_id': receipt.receipt_id,
                 'created_user_id': receipt.created_user_id,
                 'title': receipt.title,
@@ -170,17 +207,17 @@ class Expenses_Utility:
                 'icon_name': icon.icon_name if icon else None,  # Include icon name
                 'created_datetime': receipt.created_datetime,
                 'recurring_name': recurring.recur_name if recurring else None,  # Include recurring name
-                'expenses': [] 
+                'expenses': expense_data
             }
-
-            for expense in expenses:
-                expense_data = {
-                    'expense_id': expense.expenses_id,
-                    'share_amount': expense.share_amount
-                }
-                receipt_data['expenses'].append(expense_data)
-
-            return jsonify(receipt_data), 200
+            print("re DATA", receipt_data)
+            # for expense in expenses:
+                # expense_data = {
+                #     'expense_id': expense.expenses_id,
+                #     'share_amount': expense.share_amount
+                # }
+                # receipt_data['expenses'].append(expense_data)
+                
+            return jsonify({**receipt_data, 'status_code': '200'}), 200
 
         except Exception as e:
             db.session.rollback()
@@ -530,6 +567,3 @@ class Expenses_Utility:
         except Exception as e:
             db.session.rollback()
             return jsonify(message=f'Error creating expense: {str(e)}', status_code="500"), 500
-
-
-
