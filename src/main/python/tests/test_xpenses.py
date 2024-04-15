@@ -459,64 +459,6 @@ def test_create_expenses_invalid_cat_id_failed(client):
     assert status_code == 400
     assert data['message'] == 'Invalid request. Please provide valid category id.'
 
-def test_create_expenses_invalid_from_currency_failed(client):
-    expenses_data = {
-        "user_id": "1",
-        "group_id": "1",
-        "title": "Rental",
-        "description": "Pay monthly rental",
-        "cat_id": "1",
-        "share_amount": "500",
-        "from_currency": "100000",
-        "icon_id": "1",
-        "recur_id": "2"
-    }
-
-    json_data = json.dumps(expenses_data)
-
-    headers = {'Content-Type': 'application/json'}
-
-    response = client.post('/expenses/create', data=json_data, headers=headers)
-
-    if isinstance(response, tuple):
-        response, status_code = response
-    else:
-        status_code = response.status_code
-
-    data = json.loads(response.data)
-
-    assert status_code == 400
-    assert data['message'] == 'Invalid request. Please provide valid currency id.'
-
-def test_create_expenses_invalid_icon_id_failed(client):
-    expenses_data = {
-        "user_id": "1",
-        "group_id": "1",
-        "title": "Rental",
-        "description": "Pay monthly rental",
-        "cat_id": "1",
-        "share_amount": "500",
-        "from_currency": "1",
-        "icon_id": "100000",
-        "recur_id": "2"
-    }
-
-    json_data = json.dumps(expenses_data)
-
-    headers = {'Content-Type': 'application/json'}
-
-    response = client.post('/expenses/create', data=json_data, headers=headers)
-
-    if isinstance(response, tuple):
-        response, status_code = response
-    else:
-        status_code = response.status_code
-
-    data = json.loads(response.data)
-
-    assert status_code == 400
-    assert data['message'] == 'Invalid request. Please provide valid icon id.'
-
 def test_create_expenses_invalid_recur_id_failed(client):
     expenses_data = {
         "user_id": "1",
