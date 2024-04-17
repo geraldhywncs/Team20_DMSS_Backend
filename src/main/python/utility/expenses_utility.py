@@ -159,12 +159,6 @@ class Expenses_Utility:
             if created_user_id is not None and receipt.created_user_id != created_user_id:
                 return jsonify(message='Receipt does not belong to the user'), 403
 
-            # expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all()
-            # expense_data = [{
-            #         'expense_id': expense.expenses_id,
-            #         'share_amount': expense.share_amount
-            #     } for expense in expenses]
-
             expenses = db.session.query(Expenses_Model, Currency_Conversion_Model.original_currency, Currencies_Model.name)\
             .join(Currency_Conversion_Model, Expenses_Model.expenses_id == Currency_Conversion_Model.expense_id)\
             .join(Currencies_Model, Currency_Conversion_Model.original_currency == Currencies_Model.currency_id)\
@@ -175,11 +169,11 @@ class Expenses_Utility:
 
             for expense, currency_id, currency_name in expenses:
                 expense_data.append({
-                    'expense_id': expense.expenses_id,
-                    'share_amount': expense.share_amount,
-                    'currency_id': currency_id,
-                    'currency_name': currency_name
-            })
+                'expense_id': expense.expenses_id,
+                'share_amount': expense.share_amount,
+                'currency_id': currency_id,
+                'currency_name': currency_name
+                })
                 
             category = Category_Model.query.get(receipt.cat_id)
 
@@ -187,11 +181,10 @@ class Expenses_Utility:
 
             recurring = Recurring_Frequency_Model.query.get(receipt.recur_id) if receipt.recur_id else None
 
-            group = Groups_Model.query.get(receipt.group_id) if receipt.group_id else None
+            group = None
+            if receipt.group_id is not None:
+                group = Groups_Model.query.get(receipt.group_id)
 
-            print("groupp", group)
-            print(category)
-            # print("Bef RE DAta", receipt_data)
             receipt_data = {
                 
                 'receipt_id': receipt.receipt_id,
@@ -199,7 +192,6 @@ class Expenses_Utility:
                 'title': receipt.title,
                 'description': receipt.description,
                 'group_id': receipt.group_id,
-                'group_name': group.group_name if group else None,  # Include group name
                 'recur_id': receipt.recur_id,
                 'cat_id': receipt.cat_id,
                 'category_name': category.category_name if category else None,  # Include category name
@@ -209,13 +201,6 @@ class Expenses_Utility:
                 'recurring_name': recurring.recur_name if recurring else None,  # Include recurring name
                 'expenses': expense_data
             }
-            print("re DATA", receipt_data)
-            # for expense in expenses:
-                # expense_data = {
-                #     'expense_id': expense.expenses_id,
-                #     'share_amount': expense.share_amount
-                # }
-                # receipt_data['expenses'].append(expense_data)
                 
             return jsonify({**receipt_data, 'status_code': '200'}), 200
 
@@ -234,7 +219,7 @@ class Expenses_Utility:
             if not receipt:
                 return jsonify(message='Receipt not found'), 404
 
-            # Update receipt properties if they are present in the data
+            # Update the receipt if they exist in the data
             if 'title' in data:
                 receipt.title = data['title']
             if 'description' in data:
@@ -260,12 +245,9 @@ class Expenses_Utility:
                 expenses = Expenses_Model.query.filter_by(receipt_id=receipt_id).all()
                 for expense in expenses:
                     expense.share_amount = data['share_amount']
-                    
-            if 'recurring_name' in data:
-                receipt.recurring_name = data['recurring_name']
+
             if 'created_datetime' in data:
                 receipt.created_datetime = data['created_datetime']
-            # Update other properties as needed
             
             db.session.commit()
 
