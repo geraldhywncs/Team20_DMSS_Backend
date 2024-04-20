@@ -63,7 +63,7 @@ jobs:
           ssh-keygen -t rsa -N "" -f my_key
           aws ec2-instance-connect send-ssh-public-key --region ap-southeast-2 --availability-zone  ap-southeast-2c --instance-id i-0248cc38c32d5b1a7 --instance-os-user ec2-user --ssh-public-key file://my_key.pub
           ssh-keygen -t rsa -N "" -f my_key_test
-          aws ec2-instance-connect send-ssh-public-key --region ap-southeast-2 --availability-zone  ap-southeast-2c --instance-id i-0cf28d0737d84322d --instance-os-user ec2-user --ssh-public-key file://my_key_test.pub
+          aws ec2-instance-connect send-ssh-public-key --region ap-southeast-2 --availability-zone  ap-southeast-2b --instance-id i-0cf28d0737d84322d --instance-os-user ec2-user --ssh-public-key file://my_key_test.pub
 
       - name: SSH into EC2 instance and pull docker image to actual server
         if: ${{ success() }}
