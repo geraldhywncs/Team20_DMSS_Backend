@@ -12,6 +12,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import getpass
+import boto3
 
 
 from botocore.exceptions import ClientError
@@ -19,8 +20,8 @@ from botocore.exceptions import ClientError
 
 
 class User_Utility:
-    # def __init__(self):
-        # self.ses_client = boto3.client('ses', region_name='ap-southeast-1')
+    def __init__(self):
+        self.ses_client = boto3.client('ses', region_name='ap-southeast-2')
 
     def create(self, user_name, email, password, first_name, last_name):
         try:
@@ -108,13 +109,13 @@ class User_Utility:
         PASSWORD_FERNET_KEY = config.get('password', 'PASSWORD_FERNET_KEY')
         return PASSWORD_FERNET_KEY
     
-    # def read_ses_sender_email(self):
-    #     current_dir = os.path.dirname(os.path.abspath(__file__))
-    #     config_file_path = os.path.join(current_dir, '..', 'config.ini')
-    #     config = ConfigParser()
-    #     config.read(config_file_path)
-    #     SENDER_EMAIL = config.get('boto', 'SENDER_EMAIL')
-    #     return SENDER_EMAIL
+    def read_ses_sender_email(self):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config_file_path = os.path.join(current_dir, '..', 'config.ini')
+        config = ConfigParser()
+        config.read(config_file_path)
+        SENDER_EMAIL = config.get('boto', 'SENDER_EMAIL')
+        return SENDER_EMAIL
     
     def read_reset_password_url(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -206,74 +207,74 @@ class User_Utility:
             db.session.rollback()
             return jsonify(message=f'Error: {str(e)}', status_code=500), 500
         
-    def send_reset_password_email(self, reset_link, email):
-    
-        smtp_server = 'localhost'
-        smtp_port = 25
-        smtp_username = email
-        # smtp_password = ''
-        
-        msg = MIMEMultipart()
-        msg['From'] = smtp_username
-        msg['To'] = email
-        msg['Subject'] = 'Reset Password'
-
-        msg.attach(MIMEText(reset_link, 'plain'))
-
-        try:
-            # with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:   
-                # Login to the email server
-                # server.login(smtp_username, smtp_password)
-            with smtplib.SMTP(smtp_server, smtp_port) as server:
-                # Send the email
-                server.sendmail(smtp_username, 'junjie.wee@ncs.com.sg', msg.as_string())
-            return jsonify(message='Email sent successfully', status_code=200), 200
-    
-        except Exception as e:
-            return jsonify(message='Error sending email: {e}', status_code=500), 500
-        
     # def send_reset_password_email(self, reset_link, email):
-    #     sender_email = self.read_ses_sender_email()
-    #     subject = 'Reset Password'
+    
+    #     smtp_server = 'localhost'
+    #     smtp_port = 25
+    #     smtp_username = email
+    #     # smtp_password = ''
+        
+    #     msg = MIMEMultipart()
+    #     msg['From'] = smtp_username
+    #     msg['To'] = email
+    #     msg['Subject'] = 'Reset Password'
 
-    #     # The email body for recipients with non-HTML email clients.
-    #     body_text = f'Password reset link: {reset_link}'
+    #     msg.attach(MIMEText(reset_link, 'plain'))
 
-    #     # The HTML body of the email.
-    #     body_html = f'<html><head></head><body><p>Password reset link: <a href="{reset_link}">{reset_link}</a></p></body></html>'
-
-    #     # Try to send the email.
     #     try:
-    #         # Provide the contents of the email.
-    #         response = self.ses_client.send_email(
-    #             Destination={
-    #                 'ToAddresses': [
-    #                     email,
-    #                 ],
-    #             },
-    #             Message={
-    #                 'Body': {
-    #                     'Html': {
-    #                         'Charset': 'UTF-8',
-    #                         'Data': body_html,
-    #                     },
-    #                     'Text': {
-    #                         'Charset': 'UTF-8',
-    #                         'Data': body_text,
-    #                     },
-    #                 },
-    #                 'Subject': {
-    #                     'Charset': 'UTF-8',
-    #                     'Data': subject,
-    #                 },
-    #             },
-    #             Source=sender_email,
-    #         )
-    #     # Display an error if something goes wrong.
-    #     except ClientError as e:
-    #         return jsonify(message=f'Error sending email: {e}', status_code=500), 500
-    #     else:
+    #         # with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:   
+    #             # Login to the email server
+    #             # server.login(smtp_username, smtp_password)
+    #         with smtplib.SMTP(smtp_server, smtp_port) as server:
+    #             # Send the email
+    #             server.sendmail(smtp_username, 'junjie.wee@ncs.com.sg', msg.as_string())
     #         return jsonify(message='Email sent successfully', status_code=200), 200
+    
+    #     except Exception as e:
+    #         return jsonify(message='Error sending email: {e}', status_code=500), 500
+        
+    def send_reset_password_email(self, reset_link, email):
+        sender_email = self.read_ses_sender_email()
+        subject = 'Reset Password'
+
+        # The email body for recipients with non-HTML email clients.
+        body_text = f'Password reset link: {reset_link}'
+
+        # The HTML body of the email.
+        body_html = f'<html><head></head><body><p>Password reset link: <a href="{reset_link}">{reset_link}</a></p></body></html>'
+
+        # Try to send the email.
+        try:
+            # Provide the contents of the email.
+            response = self.ses_client.send_email(
+                Destination={
+                    'ToAddresses': [
+                        email,
+                    ],
+                },
+                Message={
+                    'Body': {
+                        'Html': {
+                            'Charset': 'UTF-8',
+                            'Data': body_html,
+                        },
+                        'Text': {
+                            'Charset': 'UTF-8',
+                            'Data': body_text,
+                        },
+                    },
+                    'Subject': {
+                        'Charset': 'UTF-8',
+                        'Data': subject,
+                    },
+                },
+                Source=sender_email,
+            )
+        # Display an error if something goes wrong.
+        except ClientError as e:
+            return jsonify(message=f'Error sending email: {e}', status_code=500), 500
+        else:
+            return jsonify(message='Email sent successfully', status_code=200), 200
 
     def change_password(self, data):
         try:
