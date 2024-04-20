@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS  # Import CORS
-from config.database_config import db, Database_Config
+from config.database_config import db, Database_Config, is_ec2_for_selenium_environment
 from controller.expenses_controller import Expenses_Controller
 from controller.groups_controller import Groups_Controller
 from controller.grouping_controller import Grouping_Controller
