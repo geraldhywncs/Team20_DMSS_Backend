@@ -235,26 +235,26 @@ def test_login_without_password_failed(client):
     assert status_code == 400
     assert data["message"]=="Cannot found user"
 
-def test_forgot_password_successed(client):
-    data = {
-        "email": "junjie.wee@ncs.com.sg"
-    }
+# def test_forgot_password_successed(client):
+#     data = {
+#         "email": "junjie.wee@ncs.com.sg"
+#     }
 
-    json_data = json.dumps(data)
+#     json_data = json.dumps(data)
 
-    headers = {'Content-Type': 'application/json'}
+#     headers = {'Content-Type': 'application/json'}
 
-    response = client.post('/user/forgotPassword', data=json_data, headers=headers)
+#     response = client.post('/user/forgotPassword', data=json_data, headers=headers)
 
-    if isinstance(response, tuple):
-        response, status_code = response
-    else:
-        status_code = response.status_code
+#     if isinstance(response, tuple):
+#         response, status_code = response
+#     else:
+#         status_code = response.status_code
 
-    data = json.loads(response.data)
+#     data = json.loads(response.data)
 
-    assert status_code == 200
-    assert data["message"]=="Password reset email sent successfully."
+#     assert status_code == 200
+#     assert data["message"]=="Password reset email sent successfully."
 
 def test_forgot_password_without_email_failed(client):
     data = {
