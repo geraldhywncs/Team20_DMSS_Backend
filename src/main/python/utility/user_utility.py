@@ -13,7 +13,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import getpass
 
-# import boto3
+
 from botocore.exceptions import ClientError
 
 
@@ -107,6 +107,14 @@ class User_Utility:
         config.read(config_file_path)
         PASSWORD_FERNET_KEY = config.get('password', 'PASSWORD_FERNET_KEY')
         return PASSWORD_FERNET_KEY
+    
+    # def read_ses_sender_email(self):
+    #     current_dir = os.path.dirname(os.path.abspath(__file__))
+    #     config_file_path = os.path.join(current_dir, '..', 'config.ini')
+    #     config = ConfigParser()
+    #     config.read(config_file_path)
+    #     SENDER_EMAIL = config.get('sender_email', 'SENDER_EMAIL')
+    #     return SENDER_EMAIL
     
     def read_reset_password_url(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -225,7 +233,7 @@ class User_Utility:
             return jsonify(message='Error sending email: {e}', status_code=500), 500
         
     # def send_reset_password_email(self, reset_link, email):
-    #     sender_email = 'your_verified_email@domain.com'
+    #     sender_email = self.read_ses_sender_email()
     #     subject = 'Reset Password'
 
     #     # The email body for recipients with non-HTML email clients.

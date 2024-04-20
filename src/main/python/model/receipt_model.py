@@ -5,7 +5,7 @@ class Receipt_Model(db.Model):
     receipt_id = db.Column(db.Integer, primary_key=True)
     created_user_id = db.Column(db.Integer) #, db.ForeignKey('user.id')
     title = db.Column(db.String(255))
-    description = db.Column(db.String(255), default=None)
+    description = db.Column(db.String(65535), default=None)
     created_datetime = db.Column(db.DateTime)
     group_id = db.Column(db.Integer, default=None) #, db.ForeignKey('group.id')
     recur_id = db.Column(db.Integer) #, db.ForeignKey('recurring_frequency.id')
