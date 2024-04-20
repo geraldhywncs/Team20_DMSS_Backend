@@ -113,7 +113,7 @@ class User_Utility:
     #     config_file_path = os.path.join(current_dir, '..', 'config.ini')
     #     config = ConfigParser()
     #     config.read(config_file_path)
-    #     SENDER_EMAIL = config.get('sender_email', 'SENDER_EMAIL')
+    #     SENDER_EMAIL = config.get('boto', 'SENDER_EMAIL')
     #     return SENDER_EMAIL
     
     def read_reset_password_url(self):
