@@ -62,14 +62,25 @@ jobs:
         run: |
           ssh-keygen -t rsa -N "" -f my_key
           aws ec2-instance-connect send-ssh-public-key --region ap-southeast-2 --availability-zone  ap-southeast-2c --instance-id i-0248cc38c32d5b1a7 --instance-os-user ec2-user --ssh-public-key file://my_key.pub
+          ssh-keygen -t rsa -N "" -f my_key_test
+          aws ec2-instance-connect send-ssh-public-key --region ap-southeast-2 --availability-zone  ap-southeast-2c --instance-id i-0cf28d0737d84322d --instance-os-user ec2-user --ssh-public-key file://my_key_test.pub
 
-      - name: SSH into EC2 instance and run commands
+      - name: SSH into EC2 instance and pull docker image to actual server
         if: ${{ success() }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i my_key ec2-user@ec2-3-26-56-52.ap-southeast-2.compute.amazonaws.com << EOF
+          ssh -o StrictHostKeyChecking=no -i my_key ec2-user@ec2-3-26-203-126.ap-southeast-2.compute.amazonaws.com << EOF
           aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com
           docker pull 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
-          docker rm -f dmss_python_container || true && docker run -d -e EC2=true --name dmss_python_container -p 5000:5000 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
+          docker rm -f dmss_python_container || true && docker run -d -e EC2=true --name dmss_python_container -p 5000:5000 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
+          EOF
+          
+      - name: SSH into EC2 instance and pull docker image to test server
+        if: ${{ success() }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i my_key_test ec2-user@ec2-13-239-22-94.ap-southeast-2.compute.amazonaws.com << EOF
+          aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com
+          docker pull 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
+          docker rm -f dmss_python_container_test || true && docker run -d -e EC2_TEST=true --name dmss_python_container_test -p 5000:5000 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
           EOF
 
       - name: Cleanup
