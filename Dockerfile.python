@@ -23,6 +23,7 @@ RUN conda run -n moneyGoWhere pip install -r requirement.txt
 
 # Expose the port on which the app will run
 EXPOSE 5000
+EXPOSE 5001
 
 # Command to run the application
 CMD ["conda", "run", "-n", "moneyGoWhere", "python", "main.py"]
