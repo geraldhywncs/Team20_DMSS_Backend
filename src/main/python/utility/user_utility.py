@@ -17,11 +17,17 @@ import boto3
 
 from botocore.exceptions import ClientError
 
-
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 class User_Utility:
     def __init__(self):
-        self.ses_client = boto3.client('ses', region_name='ap-southeast-2')
+        self.ses_client = boto3.client(
+            'ses', 
+            region_name='ap-southeast-2',
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        )
 
     def create(self, user_name, email, password, first_name, last_name):
         try:
@@ -116,6 +122,22 @@ class User_Utility:
         config.read(config_file_path)
         SENDER_EMAIL = config.get('boto', 'SENDER_EMAIL')
         return SENDER_EMAIL
+    
+    # def read_ses_aws_access_key(self):
+    #     current_dir = os.path.dirname(os.path.abspath(__file__))
+    #     config_file_path = os.path.join(current_dir, '..', 'config.ini')
+    #     config = ConfigParser()
+    #     config.read(config_file_path)
+    #     AWS_ACCESS_KEY_ID = config.get('boto', 'AWS_ACCESS_KEY_ID')
+    #     return AWS_ACCESS_KEY_ID
+    
+    # def read_ses_aws_secret_access_key(self):
+    #     current_dir = os.path.dirname(os.path.abspath(__file__))
+    #     config_file_path = os.path.join(current_dir, '..', 'config.ini')
+    #     config = ConfigParser()
+    #     config.read(config_file_path)
+    #     AWS_SECRET_ACCESS_KEY = config.get('boto', 'AWS_SECRET_ACCESS_KEY')
+    #     return AWS_SECRET_ACCESS_KEY
     
     def read_reset_password_url(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -270,6 +292,7 @@ class User_Utility:
                 },
                 Source=sender_email,
             )
+            print(response)
         # Display an error if something goes wrong.
         except ClientError as e:
             return jsonify(message=f'Error sending email: {e}', status_code=500), 500
