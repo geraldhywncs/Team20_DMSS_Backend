@@ -30,52 +30,50 @@ class Expenses_Utility:
                 return jsonify(message='User ID is required'), 400
 
             receipts = Receipt_Model.query.filter_by(created_user_id=user_id).order_by(Receipt_Model.created_datetime.desc()).all()
-            if receipts:
-                receipt_list = []
-                
-                for receipt in receipts:
-                    expenses = Expenses_Model.query.filter_by(receipt_id=receipt.receipt_id).all()
-                    expense_data = []
-                    total_amount = 0
-                    print(len(expenses))
-                    for expense in expenses:
-                        # Fetch currency conversion data
-                        currency_conversion = Currency_Conversion_Model.query.filter_by(expense_id=expense.expenses_id, convert_currency=2).first()
-                        print("cc", currency_conversion.converted_amount)
-                        if currency_conversion:  # Only include if converted to SGD
-                            converted_amount = currency_conversion.converted_amount
-                            print("gete", converted_amount)
-                            total_amount += converted_amount
-                            expense_data.append({
-                                'expense_id': expense.expenses_id,
-                                'converted_amount': converted_amount
-                            })
-                    print("total", total_amount)
-                    category = Category_Model.query.filter_by(user_id=user_id, category_id=receipt.cat_id).first()
-                    category_name = category.category_name if category else None
 
-                    recurring = Recurring_Frequency_Model.query.filter_by(recurring_id=receipt.recur_id).first()
-                    recurring_name = recurring.recur_name if recurring else None
+            receipt_list = []
+            
+            for receipt in receipts:
+                expenses = Expenses_Model.query.filter_by(receipt_id=receipt.receipt_id).all()
+                expense_data = []
+                total_amount = 0
+                print(len(expenses))
+                for expense in expenses:
+                    # Fetch currency conversion data
+                    currency_conversion = Currency_Conversion_Model.query.filter_by(expense_id=expense.expenses_id, convert_currency=2).first()
+                    print("cc", currency_conversion.converted_amount)
+                    if currency_conversion:  # Only include if converted to SGD
+                        converted_amount = currency_conversion.converted_amount
+                        print("gete", converted_amount)
+                        total_amount += converted_amount
+                        expense_data.append({
+                            'expense_id': expense.expenses_id,
+                            'converted_amount': converted_amount
+                        })
+                print("total", total_amount)
+                category = Category_Model.query.filter_by(user_id=user_id, category_id=receipt.cat_id).first()
+                category_name = category.category_name if category else None
 
-                    receipt_data = {
-                        'receipt_id': receipt.receipt_id,
-                        'title': receipt.title,
-                        'description': receipt.description,
-                        'created_datetime': receipt.created_datetime,
-                        'group_id': receipt.group_id,
-                        'recur_id': receipt.recur_id,
-                        'cat_id': receipt.cat_id,
-                        'icon_id': receipt.icon_id,
-                        'updated_recur_datetime': receipt.updated_recur_datetime,
-                        'category_name': category_name,
-                        'recurring_name': recurring_name,
-                        'total_amount': total_amount,
-                        'expenses': expense_data
-                    }
-                    receipt_list.append(receipt_data)
-                return jsonify(receipts=receipt_list)
-            else:
-                return jsonify(message=f'No receipts found for user with ID {user_id}'), 404
+                recurring = Recurring_Frequency_Model.query.filter_by(recurring_id=receipt.recur_id).first()
+                recurring_name = recurring.recur_name if recurring else None
+
+                receipt_data = {
+                    'receipt_id': receipt.receipt_id,
+                    'title': receipt.title,
+                    'description': receipt.description,
+                    'created_datetime': receipt.created_datetime,
+                    'group_id': receipt.group_id,
+                    'recur_id': receipt.recur_id,
+                    'cat_id': receipt.cat_id,
+                    'icon_id': receipt.icon_id,
+                    'updated_recur_datetime': receipt.updated_recur_datetime,
+                    'category_name': category_name,
+                    'recurring_name': recurring_name,
+                    'total_amount': total_amount,
+                    'expenses': expense_data
+                }
+                receipt_list.append(receipt_data)
+            return jsonify(receipts=receipt_list)
 
         except Exception as e:
             return jsonify(message=f'Error reading receipts: {str(e)}'), 500
