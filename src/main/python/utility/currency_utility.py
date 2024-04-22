@@ -94,3 +94,40 @@ class Currency_Utility:
             db.session.rollback()
             print(e)
             return jsonify(message=f'Error creating currency converter: {str(e)}', status_code = 500), 500
+        
+    def update_currency_converter(self, data):
+        try:
+            if "expense_id" not in data:
+                return jsonify(message='Invalid request. Please provide expense id.', status_code = 400), 400
+            else:
+                expenses = Expenses_Model.query.filter_by(expenses_id=data['expense_id']).all()
+                if not expenses:
+                    return jsonify(message='Invalid request. Please provide valid expenses id.', status_code=400), 400
+            if "original_currency" not in data:
+                return jsonify(message='Invalid request. Please provide original currency.', status_code = 400), 400
+            else:
+                currency = Currencies_Model.query.filter_by(currency_id=data['original_currency']).all()
+                if not currency:
+                    return jsonify(message='Invalid request. Please provide valid orginal currency id.', status_code=400), 400
+            if "convert_currency" not in data:
+                return jsonify(message='Invalid request. Please provide convert currency.', status_code = 400), 400
+            else:
+                currency = Currencies_Model.query.filter_by(currency_id=data['convert_currency']).all()
+                if not currency:
+                    return jsonify(message='Invalid request. Please provide valid convert currency id.', status_code=400), 400
+            if "exchange_rate" not in data:
+                return jsonify(message='Invalid request. Please provide exchange rate.', status_code = 400), 400
+            if "converted_amount" not in data:
+                return jsonify(message='Invalid request. Please provide converted amount.', status_code = 400), 400
+            
+            data['converted_amount'] = round(float(data['converted_amount']), 2)
+            update_currency = Currency_Conversion_Model.query.filter_by(expense_id=data['expense_id'],original_currency=data['expense_id'],convert_currency=data['convert_currency']).first()
+            update_currency.original_currency = data['original_currency']
+            update_currency.exchange_rate = data['exchange_rate']
+            update_currency.converted_amount = data['converted_amount']
+            
+            return jsonify(message='Currency Converter created successfully!', status_code = 200), 200
+        except Exception as e:
+                db.session.rollback()
+                print(e)
+                return jsonify(message=f'Error creating currency converter: {str(e)}', status_code = 500), 500
