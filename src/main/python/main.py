@@ -73,8 +73,8 @@ def scheduler_thread(flask_app):
 # Only if running main.py then run below code
 if __name__ == '__main__':
 
-    scheduler = threading.Thread(target=scheduler_thread, args=(app,))
-    scheduler.start()
+    # scheduler = threading.Thread(target=scheduler_thread, args=(app,))
+    # scheduler.start()
 
     # start_recurring_frequency_batch_job()
 

@@ -342,7 +342,7 @@ class Expenses_Utility:
                     "expense_id": update_expense.expenses_id,
                     "commit": "false"
                 })
-
+                print(f"data['from_currency']{data['from_currency']}")
                 countj = 0
                 for j in codes:
                     # print("countj:", countj)
@@ -351,7 +351,7 @@ class Expenses_Utility:
                     #print("currency_ids:", currency_ids)
                     # print(exchange_rates_n_coverted_amount[countj].get("converted_amount"))
                     convert_currency_reponse = self.currency_utility.update_currency_converter({
-                        "original_currency": from_currency_id,
+                        "original_currency": data['from_currency'],
                         "convert_currency": currency_ids[countj],
                         "exchange_rate": exchange_rates_n_coverted_amount[countj].get("exchange_rate"),
                         "converted_amount": exchange_rates_n_coverted_amount[countj].get("converted_amount"),
@@ -382,11 +382,14 @@ class Expenses_Utility:
                     db.session.commit()
             else:
                 print(data['group_id'])
-                new_grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['group_id']})
-                new_grouping_response_content = new_grouping_response.get_data(as_text=True)
-                new_grouping_data = json.loads(new_grouping_response_content).get("grouping", [])
-                print(new_grouping_data)
-                new_grouping_ids = [group['user_id'] for group in new_grouping_data]
+                if data['group_id'] != None:
+                    new_grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['group_id']})
+                    new_grouping_response_content = new_grouping_response.get_data(as_text=True)
+                    new_grouping_data = json.loads(new_grouping_response_content).get("grouping", [])
+                    print(new_grouping_data)
+                    new_grouping_ids = [group['user_id'] for group in new_grouping_data]
+                else:
+                    new_grouping_ids = [int(data['user_id'])]
 
                 if previous_group_id != None:
                     old_expense = Receipt_Model.query.filter_by(receipt_id=data['receipt_id']).first()

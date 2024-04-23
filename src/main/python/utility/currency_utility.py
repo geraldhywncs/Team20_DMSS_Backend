@@ -76,7 +76,6 @@ class Currency_Utility:
                 return jsonify(message='Invalid request. Please provide converted amount.', status_code = 400), 400
             
             data['converted_amount'] = round(float(data['converted_amount']), 2)
-
             new_converted_currency = Currency_Conversion_Model(expense_id = data['expense_id'], 
                                                                original_currency = data['original_currency'],
                                                                convert_currency = data['convert_currency'],
@@ -121,7 +120,8 @@ class Currency_Utility:
                 return jsonify(message='Invalid request. Please provide converted amount.', status_code = 400), 400
             
             data['converted_amount'] = round(float(data['converted_amount']), 2)
-            update_currency = Currency_Conversion_Model.query.filter_by(expense_id=data['expense_id'],original_currency=data['expense_id'],convert_currency=data['convert_currency']).first()
+            update_currency = Currency_Conversion_Model.query.filter_by(expense_id=data['expense_id'], convert_currency=data['convert_currency']).first()
+            # print({attr: getattr(update_currency, attr) for attr in vars(update_currency)})
             update_currency.original_currency = data['original_currency']
             update_currency.exchange_rate = data['exchange_rate']
             update_currency.converted_amount = data['converted_amount']
