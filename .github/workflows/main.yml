@@ -26,17 +26,17 @@ jobs:
         run: |
           sudo apt-get install -y tesseract-ocr
 
-      # - name: Run pytest
-      #   id: pytest
-      #   run: |
-      #     pytest
-      #   continue-on-error: true
+      - name: Run pytest
+        id: pytest
+        run: |
+          pytest
+        continue-on-error: true
 
-      # - name: Check pytest status
-      #   if: steps.pytest.outcome == 'failure'
-      #   run: |
-      #     echo "Pytest failed. Please check the test results."
-      #     exit 1
+      - name: Check pytest status
+        if: steps.pytest.outcome == 'failure'
+        run: |
+          echo "Pytest failed. Please check the test results."
+          exit 1
 
       - name: Run bandit security testing
         if: ${{ success() }}
