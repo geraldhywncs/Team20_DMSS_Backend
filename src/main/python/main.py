@@ -94,4 +94,4 @@ if __name__ == '__main__':
 
     # start_recurring_frequency_batch_job()
 
-    app.run(debug=False, host=read_host_port_path(), port=read_host_port_path())
+    app.run(debug=False, host=read_host_path(), port=read_host_port_path())
