@@ -38,6 +38,9 @@ Note: Run steps 1-6 if first time. Run steps 4-6 if already created before.
 1. Create Post Request (http://localhost:5000/currency/currencyConverter)
 2. In the body select raw and copy, paste the following
 
+## Security testing
+1. bandit -r "your_path" --exclude "your_path\tests\*.py" --ini bandit_config.ini  > bandit_results.txt
+
 {
 "amount": 69.69,
 "from_currency": "USD",

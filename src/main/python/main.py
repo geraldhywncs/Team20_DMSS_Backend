@@ -26,6 +26,22 @@ def read_tessaract_path():
     config.read(config_file_path)
     TESSARACT_PATH = config.get('path', 'TESSARACT_PATH')
     return TESSARACT_PATH
+
+def read_host_port_path():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(current_dir, 'config.ini')
+    config = ConfigParser()
+    config.read(config_file_path)
+    HOST_PORT = config.get('env', 'HOST_PORT')
+    return int(HOST_PORT)
+
+def read_host_path():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(current_dir, 'config.ini')
+    config = ConfigParser()
+    config.read(config_file_path)
+    HOST = config.get('env', 'HOST')
+    return HOST
     
 new_path = read_tessaract_path()
 os.environ['PATH'] += os.pathsep + new_path
@@ -78,4 +94,4 @@ if __name__ == '__main__':
 
     # start_recurring_frequency_batch_job()
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host=read_host_port_path(), port=read_host_port_path())
