@@ -38,6 +38,12 @@ jobs:
           echo "Pytest failed. Please check the test results."
           exit 1
 
+      - name: Run bandit security testing
+        if: ${{ success() }}
+        id: bandit
+        run: |
+          bandit -r "${{ github.workspace }}" --exclude "${{ github.workspace }}/tests/*.py" --ini bandit_config.ini
+
       - name: Build Docker image
         if: ${{ success() }}
         run: |
