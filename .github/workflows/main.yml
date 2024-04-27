@@ -74,7 +74,7 @@ jobs:
       - name: SSH into EC2 instance and pull docker image to actual server
         if: ${{ success() }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i my_key ec2-user@ec2-3-26-203-126.ap-southeast-2.compute.amazonaws.com << EOF
+          ssh -o StrictHostKeyChecking=no -i my_key ec2-user@ec2-13-210-101-186.ap-southeast-2.compute.amazonaws.com << EOF
           aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com
           docker image prune -f
           docker pull 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
@@ -84,7 +84,7 @@ jobs:
       - name: SSH into EC2 instance and pull docker image to test server
         if: ${{ success() }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i my_key_test ec2-user@ec2-13-239-22-94.ap-southeast-2.compute.amazonaws.com << EOF
+          ssh -o StrictHostKeyChecking=no -i my_key_test ec2-user@ec2-54-252-168-241.ap-southeast-2.compute.amazonaws.com << EOF
           aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com
           docker image prune -f
           docker pull 409151997352.dkr.ecr.ap-southeast-2.amazonaws.com/dmss-backend
