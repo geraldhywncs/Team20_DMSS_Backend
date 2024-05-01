@@ -696,27 +696,32 @@ class Expenses_Utility:
 
                 exchange_rates_n_coverted_amount = []
 
-                for j in codes:
-                    convert_currency_response = self.currency_utility.currency_converter_expense(
-                        {"amount": data['share_amount'], "from_currency": from_currency, "to_currency": j})
+                # for j in codes:
+                #     convert_currency_response = self.currency_utility.currency_converter_expense(
+                #         {"amount": data['share_amount'], "from_currency": from_currency, "to_currency": j})
 
-                    if isinstance(convert_currency_response, tuple):
-                        convert_currency_response, status_code = convert_currency_response
-                    else:
-                        status_code = convert_currency_response.status_code
+                #     if isinstance(convert_currency_response, tuple):
+                #         convert_currency_response, status_code = convert_currency_response
+                #     else:
+                #         status_code = convert_currency_response.status_code
 
-                    if status_code != 200:
-                        convert_currency_response_content = convert_currency_response.get_data(as_text=True)
-                        db.session.rollback()
-                        #print("convert_currency_response_content (status code 500/400):", convert_currency_response_content)
-                        return jsonify(message=convert_currency_response_content), status_code
+                #     if status_code != 200:
+                #         convert_currency_response_content = convert_currency_response.get_data(as_text=True)
+                #         db.session.rollback()
+                #         #print("convert_currency_response_content (status code 500/400):", convert_currency_response_content)
+                #         return jsonify(message=convert_currency_response_content), status_code
 
-                    convert_currency_response_content = convert_currency_response.get_data(as_text=True)
-                    #print("convert_currency_response_content:", convert_currency_response_content)
+                #     convert_currency_response_content = convert_currency_response.get_data(as_text=True)
+                #     #print("convert_currency_response_content:", convert_currency_response_content)
 
-                    exchange_rates_n_coverted_amount.append(
-                        {"exchange_rate": json.loads(convert_currency_response_content).get("exchange_rate"),
-                         "converted_amount": json.loads(convert_currency_response_content).get("converted_amount")})
+                #     exchange_rates_n_coverted_amount.append(
+                #         {"exchange_rate": json.loads(convert_currency_response_content).get("exchange_rate"),
+                #          "converted_amount": json.loads(convert_currency_response_content).get("converted_amount")})
+
+                iterator = Currency_Iterator(codes, data['share_amount'], from_currency, self.currency_utility, db.session)
+                for result in iterator:
+                    exchange_rates_n_coverted_amount.append(result)
+
             else:
                 db.session.rollback()
                 return jsonify(message='No currencies inside database', status_code="400"), 400
@@ -742,32 +747,35 @@ class Expenses_Utility:
                 })
 
                 countj = 0
-                for j in codes:
-                    # print("countj:", countj)
-                    #print("j:", j)
-                    #print("from_currency:", from_currency)
-                    #print("currency_ids:", currency_ids)
-                    print(exchange_rates_n_coverted_amount[countj].get("converted_amount"))
-                    convert_currency_reponse = self.currency_utility.create_currency_converter({
-                        "original_currency": from_currency_id,
-                        "convert_currency": currency_ids[countj],
-                        "exchange_rate": exchange_rates_n_coverted_amount[countj].get("exchange_rate"),
-                        "converted_amount": exchange_rates_n_coverted_amount[countj].get("converted_amount"),
-                        "expense_id": created_expense_id,
-                        "commit": "false"
-                    })
+                # for j in codes:
+                #     # print("countj:", countj)
+                #     #print("j:", j)
+                #     #print("from_currency:", from_currency)
+                #     #print("currency_ids:", currency_ids)
+                #     print(exchange_rates_n_coverted_amount[countj].get("converted_amount"))
+                #     convert_currency_reponse = self.currency_utility.create_currency_converter({
+                #         "original_currency": from_currency_id,
+                #         "convert_currency": currency_ids[countj],
+                #         "exchange_rate": exchange_rates_n_coverted_amount[countj].get("exchange_rate"),
+                #         "converted_amount": exchange_rates_n_coverted_amount[countj].get("converted_amount"),
+                #         "expense_id": created_expense_id,
+                #         "commit": "false"
+                #     })
 
-                    if isinstance(convert_currency_reponse, tuple):
-                        convert_currency_reponse, status_code = convert_currency_reponse
-                    else:
-                        status_code = convert_currency_reponse.status_code
-                    if status_code != 200:
-                        convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
-                        db.session.rollback()
-                        #print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
-                        return jsonify(message=convert_currency_reponse_content), status_code
+                #     if isinstance(convert_currency_reponse, tuple):
+                #         convert_currency_reponse, status_code = convert_currency_reponse
+                #     else:
+                #         status_code = convert_currency_reponse.status_code
+                #     if status_code != 200:
+                #         convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
+                #         db.session.rollback()
+                #         #print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
+                #         return jsonify(message=convert_currency_reponse_content), status_code
 
-                    countj += 1
+                #     countj += 1
+                iterator = Currency_Conversion_Save_Iterator(from_currency_id, currency_ids, exchange_rates_n_coverted_amount, created_expense_id, self.currency_utility)
+                for response in iterator:
+                    pass
             else:
                 grouping_response = self.grouping_utility.read_grouping_by_group_id({"groupId": data['group_id']})
                 grouping_response_content = grouping_response.get_data(as_text=True)
@@ -775,55 +783,60 @@ class Expenses_Utility:
                 print(grouping_data)
                 grouping_ids = [group['user_id'] for group in grouping_data]
 
-                for grouping_id in grouping_ids:
-                    print(data['share_amount'])
-                    new_expense = Expenses_Model(
-                        user_id=grouping_id,
-                        share_amount=data['share_amount'],
-                        receipt_id=new_receipt.receipt_id
-                    )
-                    db.session.add(new_expense)
+                # for grouping_id in grouping_ids:
+                #     print(data['share_amount'])
+                #     new_expense = Expenses_Model(
+                #         user_id=grouping_id,
+                #         share_amount=data['share_amount'],
+                #         receipt_id=new_receipt.receipt_id
+                #     )
+                #     db.session.add(new_expense)
 
-                    db.session.commit()
+                #     db.session.commit()
 
-                    created_expense_id = new_expense.expenses_id
+                #     created_expense_id = new_expense.expenses_id
 
-                    convert_currency_reponse = self.currency_utility.create_currency_converter({
-                        "original_currency": data['from_currency'],
-                        "convert_currency": data['from_currency'],
-                        "exchange_rate": 1,
-                        "converted_amount": data['share_amount'],
-                        "expense_id": created_expense_id,
-                        "commit": "false"
-                    })
+                #     convert_currency_reponse = self.currency_utility.create_currency_converter({
+                #         "original_currency": data['from_currency'],
+                #         "convert_currency": data['from_currency'],
+                #         "exchange_rate": 1,
+                #         "converted_amount": data['share_amount'],
+                #         "expense_id": created_expense_id,
+                #         "commit": "false"
+                #     })
 
-                    countj = 0
-                    for j in codes:
-                        # print("countj:", countj)
-                        #print("j:", j)
-                        #print("from_currency:", from_currency)
-                        #print("currency_ids:", currency_ids)
+                #     countj = 0
+                #     for j in codes:
+                #         # print("countj:", countj)
+                #         #print("j:", j)
+                #         #print("from_currency:", from_currency)
+                #         #print("currency_ids:", currency_ids)
 
-                        convert_currency_reponse = self.currency_utility.create_currency_converter({
-                            "original_currency": from_currency_id,
-                            "convert_currency": currency_ids[countj],
-                            "exchange_rate": exchange_rates_n_coverted_amount[countj].get("exchange_rate"),
-                            "converted_amount": exchange_rates_n_coverted_amount[countj].get("converted_amount"),
-                            "expense_id": created_expense_id,
-                            "commit": "false"
-                        })
+                #         convert_currency_reponse = self.currency_utility.create_currency_converter({
+                #             "original_currency": from_currency_id,
+                #             "convert_currency": currency_ids[countj],
+                #             "exchange_rate": exchange_rates_n_coverted_amount[countj].get("exchange_rate"),
+                #             "converted_amount": exchange_rates_n_coverted_amount[countj].get("converted_amount"),
+                #             "expense_id": created_expense_id,
+                #             "commit": "false"
+                #         })
 
-                        if isinstance(convert_currency_reponse, tuple):
-                            convert_currency_reponse, status_code = convert_currency_reponse
-                        else:
-                            status_code = convert_currency_reponse.status_code
-                        if status_code != 200:
-                            convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
-                            db.session.rollback()
-                            #print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
-                            return jsonify(message=convert_currency_reponse_content), status_code
+                #         if isinstance(convert_currency_reponse, tuple):
+                #             convert_currency_reponse, status_code = convert_currency_reponse
+                #         else:
+                #             status_code = convert_currency_reponse.status_code
+                #         if status_code != 200:
+                #             convert_currency_reponse_content = convert_currency_reponse.get_data(as_text=True)
+                #             db.session.rollback()
+                #             #print("convert_currency_response_content (status code 400/500):", convert_currency_reponse_content)
+                #             return jsonify(message=convert_currency_reponse_content), status_code
 
-                        countj += 1
+                #         countj += 1
+                iterator = Group_Member_Iterator_Expenses_Creator(grouping_ids, data, new_receipt, self.currency_utility, codes, from_currency_id, exchange_rates_n_coverted_amount, currency_ids)
+
+                # Iterate over the iterator
+                for _ in iterator:
+                    pass
 
             db.session.commit()
 
@@ -831,3 +844,129 @@ class Expenses_Utility:
         except Exception as e:
             db.session.rollback()
             return jsonify(message=f'Error creating expense: {str(e)}', status_code="500"), 500
+        
+
+class Currency_Iterator:
+    def __init__(self, codes, share_amount, from_currency, currency_utility, db_session):
+        self.codes = codes
+        self.share_amount = share_amount
+        self.from_currency = from_currency
+        self.currency_utility = currency_utility
+        self.db_session = db_session
+        self.index = 0
+        self.currency_utility = Currency_Utility()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.codes):
+            j = self.codes[self.index]
+            self.index += 1
+            convert_currency_response = self.currency_utility.currency_converter_expense(
+                {"amount": self.share_amount, "from_currency": self.from_currency, "to_currency": j})
+
+            if isinstance(convert_currency_response, tuple):
+                convert_currency_response, status_code = convert_currency_response
+            else:
+                status_code = convert_currency_response.status_code
+
+            if status_code != 200:
+                convert_currency_response_content = convert_currency_response.get_data(as_text=True)
+                self.db_session.rollback()
+                return jsonify(message=convert_currency_response_content), status_code
+
+            convert_currency_response_content = convert_currency_response.get_data(as_text=True)
+
+            exchange_rate = json.loads(convert_currency_response_content).get("exchange_rate")
+            converted_amount = json.loads(convert_currency_response_content).get("converted_amount")
+
+            return {"exchange_rate": exchange_rate, "converted_amount": converted_amount}
+        else:
+            raise StopIteration
+
+class Currency_Conversion_Save_Iterator:
+    def __init__(self, from_currency_id, currency_ids, exchange_rates_n_coverted_amount, created_expense_id, currency_utility):
+        self.from_currency_id = from_currency_id
+        self.currency_ids = currency_ids
+        self.exchange_rates_n_coverted_amount = exchange_rates_n_coverted_amount
+        self.created_expense_id = created_expense_id
+        self.currency_utility = currency_utility
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.currency_ids):
+            convert_currency_response = self.currency_utility.create_currency_converter({
+                "original_currency": self.from_currency_id,
+                "convert_currency": self.currency_ids[self.index],
+                "exchange_rate": self.exchange_rates_n_coverted_amount[self.index].get("exchange_rate"),
+                "converted_amount": self.exchange_rates_n_coverted_amount[self.index].get("converted_amount"),
+                "expense_id": self.created_expense_id,
+                "commit": "false"
+            })
+
+            if isinstance(convert_currency_response, tuple):
+                convert_currency_response, status_code = convert_currency_response
+            else:
+                status_code = convert_currency_response.status_code
+                
+            if status_code != 200:
+                convert_currency_response_content = convert_currency_response.get_data(as_text=True)
+                db.session.rollback()
+                raise StopIteration(jsonify(message=convert_currency_response_content), status_code)
+
+            self.index += 1
+            return convert_currency_response
+
+        else:
+            raise StopIteration
+        
+
+class Group_Member_Iterator_Expenses_Creator:
+    def __init__(self, grouping_ids, data, new_receipt, currency_utility, codes, from_currency_id, exchange_rates_n_coverted_amount, currency_ids):
+        self.grouping_ids = grouping_ids
+        self.data = data
+        self.new_receipt = new_receipt
+        self.currency_utility = currency_utility
+        self.codes = codes
+        self.from_currency_id = from_currency_id
+        self.exchange_rates_n_coverted_amount = exchange_rates_n_coverted_amount
+        self.currency_ids = currency_ids
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.grouping_ids):
+            grouping_id = self.grouping_ids[self.index]
+            new_expense = Expenses_Model(
+                user_id=grouping_id,
+                share_amount=self.data['share_amount'],
+                receipt_id=self.new_receipt.receipt_id
+            )
+            db.session.add(new_expense)
+            db.session.commit()
+
+            created_expense_id = new_expense.expenses_id
+
+            currency_iterator = Currency_Conversion_Save_Iterator(
+                self.from_currency_id,
+                self.currency_ids,
+                self.exchange_rates_n_coverted_amount,
+                created_expense_id,
+                self.currency_utility
+            )
+
+            for _ in currency_iterator:
+                pass  # You can add additional logic here if needed
+
+            self.index += 1
+
+        else:
+            raise StopIteration
+
+        return jsonify(message='Transaction created successfully!', status_code="200"), 200
